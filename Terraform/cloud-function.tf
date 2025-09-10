@@ -1,0 +1,75 @@
+locals {
+  function_sa_permissions = [ for role in local.cloud_function.project_permissions : "${local.project_config.project_id}=>${role}" ]
+}
+
+data "archive_file" "function_source" {
+  type        = "zip"
+  source_dir  = "${path.module}/code"
+  output_path = "${path.module}/function-source.zip"
+}
+
+resource "google_storage_bucket" "bucket" {
+  depends_on = [ module.project ]
+  name                        = "${local.project_config.project_id}-gcf-source"
+  location                    = local.cloud_function.bucket_location
+  uniform_bucket_level_access = true
+  project                     = local.project_config.project_id
+}
+
+resource "google_storage_bucket_object" "function_source" {
+  name   = "function-source-${data.archive_file.function_source.output_md5}.zip"
+  bucket = google_storage_bucket.bucket.name
+  source = data.archive_file.function_source.output_path
+}
+
+# module "cloud_function" {
+#   depends_on = [ module.project ]
+#   source  = "GoogleCloudPlatform/cloud-functions/google"
+#   version = "~> 0.6"
+
+#   project_id        = local.project_config.project_id
+#   function_name     = local.cloud_function.name
+#   function_location = local.cloud_function.function_location
+#   runtime           = "python311"
+#   entrypoint        = "hello_http"
+#   storage_source = {
+#     bucket     = google_storage_bucket.bucket.name
+#     object     = google_storage_bucket_object.function_source.name
+#     generation = null
+#   }
+#   build_service_account = module.cloud_build_sa.service_account.name
+#   service_config = {
+#     max_instance_count = 1
+#     service_account_email = module.cloud_function_sa.email
+#     runtime_env_variables = var.cloud_function.env_vars
+#   }
+# }
+
+module "cloud_function_sa" {
+  depends_on = [ module.project ]
+  source        = "terraform-google-modules/service-accounts/google"
+  version       = "~> 4.0"
+  project_id    = local.project_config.project_id
+  names         = ["cyngular-cf-sa"]
+  project_roles = local.function_sa_permissions
+}
+
+module "cloud_build_sa" {
+  depends_on = [ module.project ]
+  source        = "terraform-google-modules/service-accounts/google"
+  version       = "~> 4.0"
+  project_id    = local.project_config.project_id
+  names         = ["cyngular-cloud-build-sa"]
+  project_roles = [
+    "${local.project_config.project_id}=>roles/logging.logWriter",
+    "${local.project_config.project_id}=>roles/artifactregistry.writer",
+    "${local.project_config.project_id}=>roles/storage.objectViewer"
+    ]
+}
+resource "google_organization_iam_member" "cloud_function_roles" {
+  depends_on = [ module.project ]
+  for_each = toset(local.cloud_function.org_permissions)
+  org_id   = var.organization_id
+  role     = each.value
+  member   = "serviceAccount:${module.cloud_function_sa.email}"
+}
