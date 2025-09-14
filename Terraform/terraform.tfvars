@@ -10,6 +10,10 @@ organization_audit_logs = {
     enable_data_write = false
   }
   enable_bigquery_export = true
+  # existing_bq_dataset = {
+  #   dataset_id = "DATASET_ID"
+  #   project_id = "CLIENT-PROJECT-ID"
+  # }
   # bq_location = "europe-west4"
 }
 

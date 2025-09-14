@@ -1,9 +1,7 @@
-locals {
-  cyngular_sa_permissions = [ for role in local.cyngular_sa.project_permissions : "${local.project_config.project_id}=>${role}" ]
-}
-
 module "cyngular_sa" {
-  depends_on = [ module.project ]
+  depends_on = [
+    module.project
+  ]
   source        = "terraform-google-modules/service-accounts/google"
   version       = "~> 4.0"
   project_id    = local.project_config.project_id
@@ -12,7 +10,10 @@ module "cyngular_sa" {
 }
 
 resource "google_organization_iam_member" "cyngular_sa_roles" {
-  depends_on = [ module.project ]
+  depends_on = [
+    module.project,
+    google_organization_iam_custom_role.cyngular_custom
+  ]
   for_each = toset(local.cyngular_sa.org_permissions)
   org_id   = var.organization_id
   role     = each.value
@@ -20,7 +21,7 @@ resource "google_organization_iam_member" "cyngular_sa_roles" {
 }
 
 resource "google_service_account_iam_member" "cyngular_sa" {
-  depends_on = [ module.project ]
+  depends_on         = [module.project]
   service_account_id = module.cyngular_sa.service_account.name
   role               = "roles/iam.serviceAccountTokenCreator"
   member             = "serviceAccount:${local.cyngular_sa.base_sa_email}"

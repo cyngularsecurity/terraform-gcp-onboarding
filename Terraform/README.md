@@ -57,6 +57,11 @@ organization_audit_logs = {
     enable_data_write = true/false
   }
   enable_bigquery_export = true/false
+  bq_location = "REGION OR MULTIRGION" # By default us-east4
+  existing_bq_dataset = { # Needs to be set if enable_bigquery_export is false
+    dataset_id = DATASET_NAME
+    project_id = DATASET_PROJECT
+  }
 }
 
 ```

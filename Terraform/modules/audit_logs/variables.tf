@@ -36,3 +36,28 @@ variable "bigquery_location" {
   description = "The location for the BigQuery dataset"
   default     = null
 }
+
+variable "cyngular_sa_email" {
+  type        = string
+  description = "The email of the Cyngular service account that permission is granted to"
+}
+
+variable "function_sa_email" {
+  type        = string
+  description = "The email of the Cyngular service account that permission is granted to"
+}
+
+variable "existing_bq_dataset" {
+  type        = object({
+    dataset_id          = string
+    project_id  = string
+  })
+  description = <<EOF
+  Provide the existing BigQuery dataset details if you want to use an existing dataset instead of creating a new one.
+  Ignored if enabled_bigquery_export is true.
+  Must be set if enabled_bigquery_export is false.
+    dataset_id - The ID of the dataset.
+    project_id - The ID of the project containing the dataset.
+EOF
+  default     = null
+}

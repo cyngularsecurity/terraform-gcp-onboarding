@@ -10,15 +10,30 @@ variable "billing_account" {
 }
 
 variable "organization_audit_logs" {
-  description = "Configures audit logs for organization"
+  description = <<EOF
+  "Configures audit logs and sink for organization"
+  If enable_bigquery_export is false, existing_bq_dataset must be provided.
+  If enable_bigquery_export is true, existing_bq_dataset is ignored.
+  If enable_bigquery_export is true and bq_location is not provided, us-east4 is used for the default.
+  
+  log_configuration - Configuration for which audit logs to enable
+    enable_admin_read - Enable admin read audit logs
+    enable_data_read  - Enable data read audit logs
+    enable_data_write - Enable data write audit logs
+EOF
+  
   type = object({
     log_configuration = optional(object({
-      enable_admin_read             = bool,
-      enable_data_read              = bool,
-      enable_data_write             = bool, 
+      enable_admin_read = bool,
+      enable_data_read  = bool,
+      enable_data_write = bool,
     }))
-    enable_bigquery_export        = bool
-    bq_location                   = optional(string),
+    enable_bigquery_export = bool
+    bq_location            = optional(string, "us-east4"),
+    existing_bq_dataset   = optional(object({
+      dataset_id          = string
+      project_id  = string
+    }),null)
   })
   default = null
 }
