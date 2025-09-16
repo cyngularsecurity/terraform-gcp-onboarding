@@ -22,28 +22,28 @@ resource "google_storage_bucket_object" "function_source" {
   source = data.archive_file.function_source.output_path
 }
 
-# module "cloud_function" {
-#   depends_on = [ module.project ]
-#   source  = "GoogleCloudPlatform/cloud-functions/google"
-#   version = "~> 0.6"
+module "cloud_function" {
+  depends_on = [ module.project ]
+  source  = "GoogleCloudPlatform/cloud-functions/google"
+  version = "~> 0.6"
 
-#   project_id        = local.project_config.project_id
-#   function_name     = local.cloud_function.name
-#   function_location = local.cloud_function.function_location
-#   runtime           = "python311"
-#   entrypoint        = "hello_http"
-#   storage_source = {
-#     bucket     = google_storage_bucket.bucket.name
-#     object     = google_storage_bucket_object.function_source.name
-#     generation = null
-#   }
-#   build_service_account = module.cloud_build_sa.service_account.name
-#   service_config = {
-#     max_instance_count = 1
-#     service_account_email = module.cloud_function_sa.email
-#     runtime_env_variables = var.cloud_function.env_vars
-#   }
-# }
+  project_id        = local.project_config.project_id
+  function_name     = local.cloud_function.name
+  function_location = local.cloud_function.function_location
+  runtime           = "python311"
+  entrypoint        = "http_trigger"
+  storage_source = {
+    bucket     = google_storage_bucket.bucket.name
+    object     = google_storage_bucket_object.function_source.name
+    generation = null
+  }
+  build_service_account = module.cloud_build_sa.service_account.name
+  service_config = {
+    max_instance_count = 1
+    service_account_email = module.cloud_function_sa.email
+    runtime_env_variables = var.cloud_function.env_vars
+  }
+}
 
 module "cloud_function_sa" {
   depends_on    = [module.project]

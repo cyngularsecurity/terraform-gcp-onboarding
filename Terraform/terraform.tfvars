@@ -19,7 +19,8 @@ organization_audit_logs = {
 
 cloud_function = {
   env_vars = {
-    "ENV_VAR_1" = "value1"
-    "ENV_VAR_2" = "value2"
+    "PROJECT_ID" = "clientname-cyngular"  # This will match the project created by Terraform
+    "DATASET_ID" = "clientname_cyngular_sink"  # This will match the dataset from organization_audit_logs
+    "LOCATION" = "us-central1"  # Same as cloud function location
   }
 }
