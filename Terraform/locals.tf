@@ -48,7 +48,6 @@ locals {
     org_permissions = [
       "roles/viewer",
       "roles/browser",
-      "organizations/${var.organization_id}/roles/${local.cyngular_org_role.name}"
     ]
     base_sa_email = "github-sa@leonv-sandbox.iam.gserviceaccount.com"
   }
