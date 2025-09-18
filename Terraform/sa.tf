@@ -1,17 +1,13 @@
 module "cyngular_sa" {
-  depends_on = [
-    module.project
-  ]
   source        = "terraform-google-modules/service-accounts/google"
   version       = "~> 4.0"
-  project_id    = local.project_config.project_id
+  project_id    = var.project_id
   names         = ["cyngular-sa"]
   project_roles = local.cyngular_sa_permissions
 }
 
 resource "google_organization_iam_member" "cyngular_sa_roles" {
   depends_on = [
-    module.project,
     google_organization_iam_custom_role.cyngular_custom
   ]
   for_each = toset(local.cyngular_sa.org_permissions)
@@ -35,7 +31,6 @@ resource "google_organization_iam_member" "cyngular_sa_org_conditional_role" {
   }
 }
 resource "google_service_account_iam_member" "cyngular_sa" {
-  depends_on         = [module.project]
   service_account_id = module.cyngular_sa.service_account.name
   role               = "roles/iam.serviceAccountTokenCreator"
   member             = "serviceAccount:${local.cyngular_sa.base_sa_email}"

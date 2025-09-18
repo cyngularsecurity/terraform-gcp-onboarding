@@ -1,14 +1,12 @@
 locals {
-  project_config = {
-    project_id = "${var.client_name}-cyngular" # Review
-    apis = [
-      "bigquery.googleapis.com",
-      "compute.googleapis.com",
-      "cloudfunctions.googleapis.com",
-      "cloudbuild.googleapis.com",
-      "run.googleapis.com"
-    ]
-  }
+
+  enabled_apis = [
+    "bigquery.googleapis.com",
+    "compute.googleapis.com",
+    "cloudfunctions.googleapis.com",
+    "cloudbuild.googleapis.com",
+    "run.googleapis.com"
+  ]
   organization_audit_logs = {
     enable_random_bucket_suffix = true
     bq_dataset_name             = "${var.client_name}_cyngular_sink"         # Review
@@ -52,5 +50,5 @@ locals {
     base_sa_email = "github-sa@leonv-sandbox.iam.gserviceaccount.com"
   }
 
-  cyngular_sa_permissions = [ for role in local.cyngular_sa.project_permissions : "${local.project_config.project_id}=>${role}" ]
+  cyngular_sa_permissions = [ for role in local.cyngular_sa.project_permissions : "${var.project_id}=>${role}" ]
 }

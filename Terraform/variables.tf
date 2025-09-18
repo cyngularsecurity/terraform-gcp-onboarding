@@ -4,11 +4,6 @@ variable "organization_id" {
   type        = string
 }
 
-variable "billing_account" {
-  description = "Billing account to create resources with"
-  type        = string
-}
-
 variable "organization_audit_logs" {
   description = <<EOF
   "Configures audit logs and sink for organization"
@@ -47,4 +42,9 @@ variable "cloud_function" {
   type = object({
     env_vars = map(string)
   })
+}
+
+variable "project_id" {
+  description = "The ID of the project in which the resource belongs."
+  type        = string
 }

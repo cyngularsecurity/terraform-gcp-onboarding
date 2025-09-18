@@ -1,8 +1,7 @@
 organization_id = "1111111111111111111"
-billing_account = "AAAAAA-BBBBBB-CCCCCC"
+project_id = "PROJECT_ID"
 
 client_name = "clientname"
-
 organization_audit_logs = {
   log_configuration = {
     enable_admin_read = false

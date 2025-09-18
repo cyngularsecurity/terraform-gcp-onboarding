@@ -1,5 +1,5 @@
 locals {
-  function_sa_permissions = [for role in local.cloud_function.project_permissions : "${local.project_config.project_id}=>${role}"]
+  function_sa_permissions = [for role in local.cloud_function.project_permissions : "${var.project_id}=>${role}"]
 }
 
 data "archive_file" "function_source" {
@@ -9,11 +9,10 @@ data "archive_file" "function_source" {
 }
 
 resource "google_storage_bucket" "bucket" {
-  depends_on                  = [module.project]
-  name                        = "${local.project_config.project_id}-gcf-source"
+  name                        = "${var.project_id}-gcf-source"
   location                    = local.cloud_function.bucket_location
   uniform_bucket_level_access = true
-  project                     = local.project_config.project_id
+  project                     = var.project_id
 }
 
 resource "google_storage_bucket_object" "function_source" {
@@ -23,11 +22,14 @@ resource "google_storage_bucket_object" "function_source" {
 }
 
 module "cloud_function" {
-  depends_on = [ module.project ]
+  depends_on = [ 
+    module.cloud_build_sa,
+    module.cloud_function_sa
+  ]
   source  = "GoogleCloudPlatform/cloud-functions/google"
   version = "~> 0.6"
 
-  project_id        = local.project_config.project_id
+  project_id        = var.project_id
   function_name     = local.cloud_function.name
   function_location = local.cloud_function.function_location
   runtime           = "python311"
@@ -46,28 +48,25 @@ module "cloud_function" {
 }
 
 module "cloud_function_sa" {
-  depends_on    = [module.project]
   source        = "terraform-google-modules/service-accounts/google"
   version       = "~> 4.0"
-  project_id    = local.project_config.project_id
+  project_id    = var.project_id
   names         = ["cyngular-cf-sa"]
   project_roles = local.function_sa_permissions
 }
 
 module "cloud_build_sa" {
-  depends_on = [module.project]
   source     = "terraform-google-modules/service-accounts/google"
   version    = "~> 4.0"
-  project_id = local.project_config.project_id
+  project_id = var.project_id
   names      = ["cyngular-cloud-build-sa"]
   project_roles = [
-    "${local.project_config.project_id}=>roles/logging.logWriter",
-    "${local.project_config.project_id}=>roles/artifactregistry.writer",
-    "${local.project_config.project_id}=>roles/storage.objectViewer"
+    "${var.project_id}=>roles/logging.logWriter",
+    "${var.project_id}=>roles/artifactregistry.writer",
+    "${var.project_id}=>roles/storage.objectViewer"
   ]
 }
 resource "google_organization_iam_member" "cloud_function_roles" {
-  depends_on = [module.project]
   for_each   = toset(local.cloud_function.org_permissions)
   org_id     = var.organization_id
   role       = each.value
