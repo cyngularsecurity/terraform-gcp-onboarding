@@ -23,3 +23,5 @@ cloud_function = {
     "LOCATION" = "us-central1"  # Same as cloud function location
   }
 }
+
+cyngular_sa_base_email = "SA_NAME@PROJECT_ID.iam.gserviceaccount.com"

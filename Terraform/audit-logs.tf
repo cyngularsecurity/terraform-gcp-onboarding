@@ -1,4 +1,5 @@
 module "organization_audit_logs" {
+  depends_on = [ google_project_service.project ]
   source                    = "./modules/audit_logs"
   org_id                    = var.organization_id
   audit_log_configuration   = var.organization_audit_logs.log_configuration

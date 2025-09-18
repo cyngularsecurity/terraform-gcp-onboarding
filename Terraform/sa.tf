@@ -33,5 +33,5 @@ resource "google_organization_iam_member" "cyngular_sa_org_conditional_role" {
 resource "google_service_account_iam_member" "cyngular_sa" {
   service_account_id = module.cyngular_sa.service_account.name
   role               = "roles/iam.serviceAccountTokenCreator"
-  member             = "serviceAccount:${local.cyngular_sa.base_sa_email}"
+  member             = "serviceAccount:${var.cyngular_sa_base_email}"
 }

@@ -9,6 +9,7 @@ data "archive_file" "function_source" {
 }
 
 resource "google_storage_bucket" "bucket" {
+  depends_on = [ google_project_service.project ]
   name                        = "${var.project_id}-gcf-source"
   location                    = local.cloud_function.bucket_location
   uniform_bucket_level_access = true
@@ -16,6 +17,7 @@ resource "google_storage_bucket" "bucket" {
 }
 
 resource "google_storage_bucket_object" "function_source" {
+  depends_on = [ google_project_service.project ]
   name   = "function-source-${data.archive_file.function_source.output_md5}.zip"
   bucket = google_storage_bucket.bucket.name
   source = data.archive_file.function_source.output_path
@@ -24,7 +26,8 @@ resource "google_storage_bucket_object" "function_source" {
 module "cloud_function" {
   depends_on = [ 
     module.cloud_build_sa,
-    module.cloud_function_sa
+    module.cloud_function_sa,
+    google_project_service.project
   ]
   source  = "GoogleCloudPlatform/cloud-functions/google"
   version = "~> 0.6"
@@ -48,6 +51,7 @@ module "cloud_function" {
 }
 
 module "cloud_function_sa" {
+  depends_on = [ google_project_service.project ]
   source        = "terraform-google-modules/service-accounts/google"
   version       = "~> 4.0"
   project_id    = var.project_id
@@ -56,6 +60,7 @@ module "cloud_function_sa" {
 }
 
 module "cloud_build_sa" {
+  depends_on = [ google_project_service.project ]
   source     = "terraform-google-modules/service-accounts/google"
   version    = "~> 4.0"
   project_id = var.project_id
@@ -67,6 +72,7 @@ module "cloud_build_sa" {
   ]
 }
 resource "google_organization_iam_member" "cloud_function_roles" {
+  depends_on = [ google_project_service.project ]
   for_each   = toset(local.cloud_function.org_permissions)
   org_id     = var.organization_id
   role       = each.value

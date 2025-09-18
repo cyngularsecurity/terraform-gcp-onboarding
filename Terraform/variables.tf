@@ -48,3 +48,8 @@ variable "project_id" {
   description = "The ID of the project in which the resource belongs."
   type        = string
 }
+
+variable "cyngular_sa_base_email" {
+  description = "Service account email that will impersonate the service account created"
+  type        = string
+}

@@ -1,11 +1,11 @@
 locals {
-
   enabled_apis = [
     "bigquery.googleapis.com",
     "compute.googleapis.com",
     "cloudfunctions.googleapis.com",
     "cloudbuild.googleapis.com",
-    "run.googleapis.com"
+    "run.googleapis.com",
+    "cloudresourcemanager.googleapis.com"
   ]
   organization_audit_logs = {
     enable_random_bucket_suffix = true
@@ -47,7 +47,7 @@ locals {
       "roles/viewer",
       "roles/browser",
     ]
-    base_sa_email = "github-sa@leonv-sandbox.iam.gserviceaccount.com"
+    
   }
 
   cyngular_sa_permissions = [ for role in local.cyngular_sa.project_permissions : "${var.project_id}=>${role}" ]
