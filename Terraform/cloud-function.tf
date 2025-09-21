@@ -27,7 +27,8 @@ module "cloud_function" {
   depends_on = [ 
     module.cloud_build_sa,
     module.cloud_function_sa,
-    google_project_service.project
+    google_project_service.project,
+    module.organization_audit_logs
   ]
   source  = "GoogleCloudPlatform/cloud-functions/google"
   version = "~> 0.6"
@@ -77,4 +78,20 @@ resource "google_organization_iam_member" "cloud_function_roles" {
   org_id     = var.organization_id
   role       = each.value
   member     = "serviceAccount:${module.cloud_function_sa.email}"
+}
+
+resource "time_sleep" "wait_for_cloud_function" {
+  depends_on = [module.cloud_function]
+  create_duration = "60s"
+}
+
+resource "null_resource" "call_cloud_function" {
+  depends_on = [
+    module.cloud_function,
+    time_sleep.wait_for_cloud_function,
+    module.organization_audit_logs
+  ]
+  provisioner "local-exec" {
+    command = "curl -H \"Authorization: Bearer $(gcloud auth print-identity-token)\" ${module.cloud_function.function_uri}"
+  }
 }
