@@ -71,7 +71,7 @@ def main():
     client = bigquery.Client(project=PROJECT_ID)
 
     # Ensure dataset
-    ensure_dataset(client, DATASET_ID, LOCATION)
+    #ensure_dataset(client, DATASET_ID, LOCATION)
 
     # Ensure tables
     for table_config in TABLE_CONFIGS:
