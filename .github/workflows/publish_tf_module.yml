@@ -23,27 +23,50 @@ jobs:
       - name: Get the latest tag
         id: get_latest_tag
         run: |
-          latest_tag=$(git describe --tags $(git rev-list --tags --max-count=1) 2>/dev/null || echo "")
+          # Fetch all tags from the remote
+          git fetch --tags
+          # Get the latest tag, defaulting to v0.0.0 if no tags exist
+          latest_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
           echo "latest_tag=$latest_tag" >> $GITHUB_ENV
+          echo "Latest tag found: $latest_tag"
 
       - name: Calculate new version
         id: calculate_version
         run: |
+          # Default to v0.0.0 if no tag exists
+          if [ -z "$latest_tag" ]; then
+            latest_tag="v0.0.0"
+          fi
+
+          # Parse version numbers
           IFS='.' read -r -a parts <<< "${latest_tag#v}"
-          major="${parts[0]}"
-          minor="${parts[1]}"
-          patch="${parts[2]}"
+          major="${parts[0]:-0}"
+          minor="${parts[1]:-0}"
+          patch="${parts[2]:-0}"
+
+          # Increment patch version
           patch=$((patch + 1))
           new_version="v$major.$minor.$patch"
+
+          # Check if the new version already exists
+          if git rev-parse "$new_version" >/dev/null 2>&1; then
+            echo "Tag $new_version already exists. Skipping tag creation."
+            echo "tag_exists=true" >> $GITHUB_ENV
+          else
+            echo "tag_exists=false" >> $GITHUB_ENV
+          fi
+
           echo "new_version=$new_version" >> $GITHUB_ENV
           echo "New version is $new_version"
 
       - name: Create new tag
+        if: env.tag_exists == 'false'
         run: |
           git tag ${{ env.new_version }}
           git push origin ${{ env.new_version }}
 
       - name: Create GitHub release
+        if: env.tag_exists == 'false'
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
