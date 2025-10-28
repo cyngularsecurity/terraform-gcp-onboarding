@@ -46,8 +46,8 @@ terragrunt-debug.tf
 *.key
 *.pub
 
-
-cyngular_new_site.log
 .env*
 **/.env
 **/*.log
+
+tfvars
