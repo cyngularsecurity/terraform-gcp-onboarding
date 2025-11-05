@@ -37,7 +37,7 @@ terraform.rc
 .pre-commit-config.yaml
 #
 # Terragrunt
-.terragrunt-cache/** 
+.terragrunt-cache/**
 terragrunt-debug.tfvars
 terragrunt-debug.tf
 
@@ -51,3 +51,5 @@ terragrunt-debug.tf
 **/*.log
 
 tfvars
+Backend.tf
+.terraform.lock.hcl

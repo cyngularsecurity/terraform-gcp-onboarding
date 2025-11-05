@@ -1,28 +1,34 @@
 module "cyngular_sa" {
   source        = "terraform-google-modules/service-accounts/google"
   version       = "~> 4.0"
-  project_id    = var.project_id
+  project_id    = local.cyngular_project_id
   names         = ["cyngular-sa"]
   project_roles = local.cyngular_sa_permissions
+
+  depends_on = [
+    google_project.cyngular_project
+  ]
 }
 
 resource "google_organization_iam_member" "cyngular_sa_roles" {
+  for_each = toset(local.cyngular_sa.org_permissions)
+
+  org_id = var.organization_id
+  role   = each.value
+  member = "serviceAccount:${module.cyngular_sa.email}"
+
   depends_on = [
     google_organization_iam_custom_role.cyngular_custom
   ]
-  for_each = toset(local.cyngular_sa.org_permissions)
-  org_id   = var.organization_id
-  role     = each.value
-  member   = "serviceAccount:${module.cyngular_sa.email}"
 }
 
 resource "google_organization_iam_member" "cyngular_sa_org_conditional_role" {
   depends_on = [
     google_organization_iam_custom_role.cyngular_custom
   ]
-  org_id   = var.organization_id
-  role     = "organizations/${var.organization_id}/roles/${local.cyngular_org_role.name}"
-  member   = "serviceAccount:${module.cyngular_sa.email}"
+  org_id = var.organization_id
+  role   = "organizations/${var.organization_id}/roles/${local.cyngular_org_role.name}"
+  member = "serviceAccount:${module.cyngular_sa.email}"
 
   condition {
     title       = "Cyngular Snapshot condition"
@@ -33,5 +39,5 @@ resource "google_organization_iam_member" "cyngular_sa_org_conditional_role" {
 resource "google_service_account_iam_member" "cyngular_sa" {
   service_account_id = module.cyngular_sa.service_account.name
   role               = "roles/iam.serviceAccountTokenCreator"
-  member             = "serviceAccount:${var.cyngular_sa_base_email}"
+  member             = "serviceAccount:${local.cyngular_sa_base_email}"
 }

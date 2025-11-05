@@ -13,15 +13,15 @@ variable "audit_log_configuration" {
 }
 
 variable "destination_audit_project" {
-  type = string
+  type        = string
   description = "Project ID where the audit logs will be sent to"
 }
 
 
 variable "bq_dataset_name" {
-  type    = string
+  type        = string
   description = "Configures the name of the BigQuery dataset"
-  default = null
+  default     = null
 }
 
 
@@ -48,9 +48,9 @@ variable "function_sa_email" {
 }
 
 variable "existing_bq_dataset" {
-  type        = object({
-    dataset_id          = string
-    project_id  = string
+  type = object({
+    dataset_id = string
+    project_id = string
   })
   description = <<EOF
   Provide the existing BigQuery dataset details if you want to use an existing dataset instead of creating a new one.

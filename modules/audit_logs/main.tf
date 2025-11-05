@@ -1,5 +1,5 @@
 resource "google_organization_iam_audit_config" "organization" {
-  count = var.audit_log_configuration != null && try(var.audit_log_configuration.enable_admin_read || var.audit_log_configuration.enable_data_read || var.audit_log_configuration.enable_data_write, false) ? 1 : 0
+  count   = var.audit_log_configuration != null && try(var.audit_log_configuration.enable_admin_read || var.audit_log_configuration.enable_data_read || var.audit_log_configuration.enable_data_write, false) ? 1 : 0
   org_id  = var.org_id
   service = "allServices"
   dynamic "audit_log_config" {

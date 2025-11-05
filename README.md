@@ -5,14 +5,12 @@
 2. Authenticate with Google Cloud.
 3. Initialize Terraform, review the plan, and apply.
 
-
-
 Install links 
 
 - Terraform: https://developer.hashicorp.com/terraform/install
 - gcloud CLI: https://cloud.google.com/sdk/docs/install
 
-## Recommended setup
+<!-- ## Setup
 
 1. Make sure `terraform` and `gcloud` are available in your PATH:
 
@@ -22,14 +20,13 @@ gcloud version
 ```
 
 2. Ensure you have access to the backend bucket(If using a remote state) and appropriate IAM roles.
-- Project Creator
-- 
+- Project Creator -->
 
 ## Authenticate with Google Cloud
 Auth using Application Default Credentials and to the gcloud CLI
 
 ```bash
-gcloud auth login       # (Optional)
+gcloud auth login
 gcloud auth application-default login
 gcloud config set project YOUR_PROJECT_ID
 ```
@@ -66,6 +63,19 @@ organization_audit_logs = {
 
 ```
 
+
+description:
+
+Configures audit logs and sink for organization
+- If enable_bigquery_export is false, existing_bq_dataset must be provided.
+- If enable_bigquery_export is true, existing_bq_dataset is ignored.
+- If enable_bigquery_export is true and bq_location is not provided, us-east4 is used for the default.
+
+log_configuration - Configuration for which audit logs to enable
+- enable_admin_read - Enable admin read audit logs
+- enable_data_read  - Enable data read audit logs
+- enable_data_write - Enable data write audit logs
+
 ## Terraform workflow
 ```bash
 cd client/
@@ -83,5 +93,3 @@ terraform apply -var-file=terraform.tfvars
 ## Backend (remote state)
 
 If you'd like to use a remote state, uncommend the backend.tf block and fill in the bucket name and the path to the terraform.tfvars file that will be stored inside
-
-

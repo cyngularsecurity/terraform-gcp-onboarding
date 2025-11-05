@@ -1,4 +1,9 @@
 locals {
+
+  env                    = var.cyngular_project_number == "839416416471" ? "prod" : "dev"
+  cyngular_project_id    = var.cyngular_project_id != "" ? var.cyngular_project_id : "cyngular-${var.client_name}"
+  cyngular_sa_base_email = "${var.client_name}@cyngular-${local.env}.iam.gserviceaccount.com"
+
   enabled_apis = [
     "bigquery.googleapis.com",
     "compute.googleapis.com",
@@ -9,13 +14,20 @@ locals {
   ]
   organization_audit_logs = {
     enable_random_bucket_suffix = true
-    bq_dataset_name             = "${var.client_name}_cyngular_sink"         # Review
+    bq_dataset_name             = "${var.client_name}_cyngular_sink"
   }
 
   cloud_function = {
-    bucket_location   = "us-central1"
-    function_location = "us-central1"
+    bucket_location   = var.client_main_region
+    function_location = var.client_main_region
     name              = "cyngular-function"
+
+    env_vars = {
+      "PROJECT_ID" = local.cyngular_project_id
+      "DATASET_ID" = local.organization_audit_logs.bq_dataset_name
+      "LOCATION"   = var.client_main_region
+    }
+
     project_permissions = [
       "roles/bigquery.jobUser"
     ]
@@ -24,6 +36,7 @@ locals {
       "roles/browser"
     ]
   }
+  function_sa_permissions = [for role in local.cloud_function.project_permissions : "${local.cyngular_project_id}=>${role}"]
 
   cyngular_org_role = {
     name = "cyngularOrgRole"
@@ -47,8 +60,20 @@ locals {
       "roles/viewer",
       "roles/browser",
     ]
-    
   }
 
-  cyngular_sa_permissions = [ for role in local.cyngular_sa.project_permissions : "${var.project_id}=>${role}" ]
+  cyngular_sa_permissions = [for role in local.cyngular_sa.project_permissions : "${local.cyngular_project_id}=>${role}"]
+
+  gke_csi_snapshot = {
+    enabled = true
+    custom_role = {
+      role_id     = "gkeCsiSnapshotReader"
+      title       = "GKE CSI Snapshot Reader"
+      description = "GKE CSI driver read snapshots for cross-project VolumeSnapshotContent"
+      permissions = [
+        "compute.snapshots.get",
+        # "compute.snapshots.list",
+      ]
+    }
+  }
 }
