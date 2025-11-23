@@ -11,11 +11,13 @@ variable "client_main_region" {
   description = "Primary GCP region for client resources"
   type        = string
 }
-
-variable "cyngular_project_id" {
-  description = "Custom project ID for Cyngular project. Defaults to 'cyngular-{client_name}' if empty"
+variable "organization_id" {
+  description = "GCP organization ID where resources will be deployed"
   type        = string
-  default     = ""
+}
+variable "billing_account" {
+  description = "GCP billing account ID (format: XXXXXX-YYYYYY-ZZZZZZ)"
+  type        = string
 }
 
 variable "cyngular_project_folder_id" {
@@ -23,10 +25,20 @@ variable "cyngular_project_folder_id" {
   type        = string
   default     = ""
 }
-
-variable "organization_id" {
-  description = "GCP organization ID where resources will be deployed"
+variable "big_query_project_id" {
+  description = "Custom project ID for BigQuery export. Defaults to 'cyngular-{client_name}' if empty"
   type        = string
+  default     = ""
+}
+variable "big_query_dataset_name" {
+  description = "Custom dataset name for BigQuery export. Defaults to 'cyngular-{client_name}' if empty"
+  type        = string
+  default     = ""
+}
+variable "big_query_dataset_location" {
+  description = "Custom dataset location for BigQuery export. Defaults to 'us-east4' if empty"
+  type        = string
+  default     = ""
 }
 
 variable "organization_audit_logs" {
@@ -37,6 +49,7 @@ variable "organization_audit_logs" {
       enable_data_read  = bool
       enable_data_write = bool
     }))
+
     enable_bigquery_export = bool
     bq_location            = optional(string, "us-east4")
     existing_bq_dataset = optional(object({
@@ -44,14 +57,8 @@ variable "organization_audit_logs" {
       project_id = string
     }), null)
   })
-  default = null
+  # default = null
 }
-
-variable "billing_account" {
-  description = "GCP billing account ID (format: XXXXXX-YYYYYY-ZZZZZZ)"
-  type        = string
-}
-
 variable "cyngular_project_number" {
   description = "Cyngular project number for GKE CSI cross-project snapshot access (12 digits)"
   type        = string
@@ -62,8 +69,14 @@ variable "cyngular_project_number" {
   }
 }
 
-variable "cyngular_sa_base_email" {
-  description = "DEPRECATED: Auto-generated. Cyngular service account email for impersonation"
-  type        = string
-  default     = ""
-}
+# variable "cyngular_sa_base_email" {
+#   description = "DEPRECATED: Auto-generated. Cyngular service account email for impersonation"
+#   type        = string
+#   default     = ""
+# }
+
+# variable "cyngular_project_id" {
+#   description = "Custom project ID for Cyngular project. Defaults to 'cyngular-{client_name}' if empty"
+#   type        = string
+#   default     = ""
+# }

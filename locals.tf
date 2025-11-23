@@ -1,7 +1,6 @@
 locals {
-
   env                    = var.cyngular_project_number == "839416416471" ? "prod" : "dev"
-  cyngular_project_id    = var.cyngular_project_id != "" ? var.cyngular_project_id : "cyngular-${var.client_name}"
+  cyngular_project_id    = "cyngular-${var.client_name}"
   cyngular_sa_base_email = "${var.client_name}@cyngular-${local.env}.iam.gserviceaccount.com"
 
   enabled_apis = [
@@ -14,7 +13,7 @@ locals {
   ]
   organization_audit_logs = {
     enable_random_bucket_suffix = true
-    bq_dataset_name             = "${var.client_name}_cyngular_sink"
+    bq_dataset_name             = var.big_query_dataset_name != "" ? var.big_query_dataset_name : "${var.client_name}_cyngular_sink"
   }
 
   cloud_function = {
@@ -23,9 +22,9 @@ locals {
     name              = "cyngular-function"
 
     env_vars = {
-      "PROJECT_ID" = local.cyngular_project_id
+      "PROJECT_ID" = var.big_query_project_id != "" ? var.big_query_project_id : local.cyngular_project_id
       "DATASET_ID" = local.organization_audit_logs.bq_dataset_name
-      "LOCATION"   = var.client_main_region
+      "LOCATION"   = var.big_query_dataset_location != "" ? var.big_query_dataset_location : var.client_main_region
     }
 
     project_permissions = [

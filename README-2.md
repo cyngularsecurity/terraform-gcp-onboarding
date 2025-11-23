@@ -402,3 +402,15 @@ For issues or questions:
 ## License
 
 Internal use only - Cyngular Security
+
+
+graph TD
+    A[Start] --> B[GCP Organization Access]
+    B --> C[Terraform Install + gcloud Setup]
+    C --> D[Configure Module Inputs]
+    D --> E[Run terraform init]
+    E --> F[Run terraform plan]
+    F --> G[Run terraform apply]
+    G --> H[Verify in GCP + Cyngular]
+    H --> I[Optional Labeling and Tagging]
+    I --> J[End]

@@ -5,7 +5,7 @@
 2. Authenticate with Google Cloud.
 3. Initialize Terraform, review the plan, and apply.
 
-Install links 
+Install links
 
 - Terraform: https://developer.hashicorp.com/terraform/install
 - gcloud CLI: https://cloud.google.com/sdk/docs/install
@@ -62,7 +62,6 @@ organization_audit_logs = {
 }
 
 ```
-
 
 description:
 

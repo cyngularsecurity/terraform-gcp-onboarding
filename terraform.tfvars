@@ -1,6 +1,6 @@
 # default values for the module
 
-organization_id     = "1111111111111111111"
+organization_id = "1111111111111111111"
 
 billing_account = "XXXXXX-YYYYYY-ZZZZZZ" # Format: 6 chars - 6 chars - 6 chars
 

@@ -16,37 +16,28 @@ variable "destination_audit_project" {
   type        = string
   description = "Project ID where the audit logs will be sent to"
 }
-
-
 variable "bq_dataset_name" {
   type        = string
   description = "Configures the name of the BigQuery dataset"
-  default     = null
+  # default     = null
 }
-
-
 variable "enable_bigquery_export" {
   description = "Enable export of audit logs to BigQuery"
   type        = bool
 }
-
-
 variable "bigquery_location" {
   type        = string
   description = "The location for the BigQuery dataset"
-  default     = null
+  # default     = null
 }
-
 variable "cyngular_sa_email" {
   type        = string
   description = "The email of the Cyngular service account that permission is granted to"
 }
-
 variable "function_sa_email" {
   type        = string
   description = "The email of the Cyngular service account that permission is granted to"
 }
-
 variable "existing_bq_dataset" {
   type = object({
     dataset_id = string
