@@ -1,7 +1,11 @@
 locals {
+  # Deterministic
   env                    = var.cyngular_project_number == "839416416471" ? "prod" : "dev"
   cyngular_project_id    = "cyngular-${var.client_name}"
-  cyngular_sa_base_email = "${var.client_name}@cyngular-${local.env}.iam.gserviceaccount.com"
+
+  # service account names must be no less than 6 characters long
+  client_sa_name = length(var.client_name) < 6 ? "${var.client_name}-sa" : var.client_name
+  cyngular_sa_base_email = "${local.client_sa_name}@cyngular-${local.env}.iam.gserviceaccount.com"
 
   enabled_apis = [
     "bigquery.googleapis.com",
@@ -11,34 +15,31 @@ locals {
     "run.googleapis.com",
     "cloudresourcemanager.googleapis.com"
   ]
-  organization_audit_logs = {
-    enable_random_bucket_suffix = true
-    bq_dataset_name             = var.big_query_dataset_name != "" ? var.big_query_dataset_name : "${var.client_name}_cyngular_sink"
-  }
+
+  enable_random_bucket_suffix = true
+
+  # Determine if we should create a new BigQuery dataset or use an existing one
+  # If existing_bigquery_dataset is null, create a new dataset in the Cyngular project
+  # If existing_bigquery_dataset is provided, use the existing dataset
+  enable_cyngular_bigquery_export = var.existing_bigquery_dataset == null
+
+  # BigQuery dataset configuration
+  # For new datasets: use default naming and Cyngular project
+  # For existing datasets: use provided configuration
+  bq_dataset_name       = var.existing_bigquery_dataset != null ? var.existing_bigquery_dataset.dataset_name : "${var.client_name}_cyngular_sink"
+  bq_dataset_location   = var.existing_bigquery_dataset != null && var.existing_bigquery_dataset.location != "" ? var.existing_bigquery_dataset.location : var.client_main_location
+  bq_dataset_project_id = var.existing_bigquery_dataset != null ? var.existing_bigquery_dataset.project_id : local.cyngular_project_id
 
   cloud_function = {
-    bucket_location   = var.client_main_region
-    function_location = var.client_main_region
     name              = "cyngular-function"
 
-    env_vars = {
-      "PROJECT_ID" = var.big_query_project_id != "" ? var.big_query_project_id : local.cyngular_project_id
-      "DATASET_ID" = local.organization_audit_logs.bq_dataset_name
-      "LOCATION"   = var.big_query_dataset_location != "" ? var.big_query_dataset_location : var.client_main_region
-    }
-
-    project_permissions = [
-      "roles/bigquery.jobUser"
-    ]
-    org_permissions = [
-      "roles/viewer",
-      "roles/browser"
-    ]
+    bucket_location   = var.client_main_location
+    function_location = var.client_main_location
   }
-  function_sa_permissions = [for role in local.cloud_function.project_permissions : "${local.cyngular_project_id}=>${role}"]
 
   cyngular_org_role = {
-    name = "cyngularOrgRole"
+    # name = "cyngularOrgRole"
+    name = "cyngular_org_role_${var.client_name}"
     permissions = [
       "compute.disks.createSnapshot",
       "compute.snapshots.create",
@@ -71,7 +72,6 @@ locals {
       description = "GKE CSI driver read snapshots for cross-project VolumeSnapshotContent"
       permissions = [
         "compute.snapshots.get",
-        # "compute.snapshots.list",
       ]
     }
   }

@@ -1,0 +1,20 @@
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Virtual environments (if created)
+venv/
+env/
+.venv
+
+# Output files
+terraform_vars_suggestion.tf
+sinks.json
+*.log
+
+# IDE
+.vscode/
+.idea/

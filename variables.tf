@@ -1,20 +1,24 @@
 variable "client_name" {
-  description = "Client organization name (lowercase letters and numbers only)"
+  description = "Client organization name (lowercase letters and numbers only, must start and end with a letter)"
   type        = string
   validation {
-    condition     = can(regex("^[a-z0-9]+$", var.client_name))
-    error_message = "client_name must contain only lowercase letters and numbers"
+    condition     = can(regex("^[a-z](?:[a-z0-9]{0,11}[a-z])?$", var.client_name))
+
+    error_message = "client_name must contain only lowercase letters and numbers, and must start and end with a letter"
   }
 }
 
-variable "client_main_region" {
-  description = "Primary GCP region for client resources"
+variable "client_main_location" {
+  description = "Primary GCP location for client resources"
   type        = string
 }
+
 variable "organization_id" {
   description = "GCP organization ID where resources will be deployed"
   type        = string
 }
+
+# -----------
 variable "billing_account" {
   description = "GCP billing account ID (format: XXXXXX-YYYYYY-ZZZZZZ)"
   type        = string
@@ -25,58 +29,85 @@ variable "cyngular_project_folder_id" {
   type        = string
   default     = ""
 }
-variable "big_query_project_id" {
-  description = "Custom project ID for BigQuery export. Defaults to 'cyngular-{client_name}' if empty"
-  type        = string
-  default     = ""
+
+# -----------
+variable "existing_bigquery_dataset" {
+  description = <<EOF
+    Optional configuration for using an existing BigQuery dataset instead of creating a new one.
+    If null (default), a new BigQuery dataset will be created in the Cyngular project.
+    If provided, audit logs will be exported to the specified existing dataset.
+
+    Required fields:
+      - dataset_name: The name of the existing BigQuery dataset
+      - project_id: The GCP project ID containing the dataset
+
+    Optional fields:
+      - location: The dataset location (defaults to client_main_location if not provided)
+
+    Example:
+      existing_bigquery_dataset = {
+        dataset_name = "existing_audit_logs"
+        project_id   = "shared-logging-project"
+        location     = "us-east4"  # Optional
+      }
+  EOF
+  type = object({
+    dataset_name = string
+    project_id   = string
+    location     = optional(string, "")
+  })
+  default = null
+
+  validation {
+    condition = (
+      var.existing_bigquery_dataset == null ||
+      (
+        var.existing_bigquery_dataset.dataset_name != "" &&
+        var.existing_bigquery_dataset.project_id != ""
+      )
+    )
+    error_message = "When existing_bigquery_dataset is provided, both dataset_name and project_id must be non-empty strings."
+  }
 }
-variable "big_query_dataset_name" {
-  description = "Custom dataset name for BigQuery export. Defaults to 'cyngular-{client_name}' if empty"
-  type        = string
-  default     = ""
-}
-variable "big_query_dataset_location" {
-  description = "Custom dataset location for BigQuery export. Defaults to 'us-east4' if empty"
-  type        = string
-  default     = ""
-}
+
+# -----------
 
 variable "organization_audit_logs" {
-  description = "Organization audit log configuration. Set enable_bigquery_export=true to create new dataset or false to use existing_bq_dataset"
-  type = object({
-    log_configuration = optional(object({
-      enable_admin_read = bool
-      enable_data_read  = bool
-      enable_data_write = bool
-    }))
+  description = <<EOF
+    Organization audit log configuration.
+    Provide the existing BigQuery dataset details if you want to use an existing dataset instead of creating a new one.
 
-    enable_bigquery_export = bool
-    bq_location            = optional(string, "us-east4")
-    existing_bq_dataset = optional(object({
-      dataset_id = string
-      project_id = string
-    }), null)
+    EOF
+  type = object({
+    log_configuration = optional(map(bool))
   })
-  # default = null
+  default = {
+    log_configuration = {
+      "ADMIN_READ" = true
+      "DATA_READ"  = false
+      "DATA_WRITE" = false
+    }
+  }
 }
 variable "cyngular_project_number" {
-  description = "Cyngular project number for GKE CSI cross-project snapshot access (12 digits)"
+  description = <<EOF
+    Cyngular's GCP project number - determines which Cyngular environment this client connects to
+
+    Available environments:
+      - Dev:  248189932415 (project: cyngular-dev)  - For testing and development clients
+      - Prod: 839416416471 (project: cyngular-prod) - For production clients
+
+    This value is used for:
+      1. Environment detection (locals.tf) - determines if this is dev/prod deployment
+      2. GKE CSI snapshot permissions (iam.tf) - grants Cyngular's GKE Container Engine service account
+         permission to read disk snapshots from this client project for backup/disaster recovery
+
+    Find project number: https://console.cloud.google.com/iam-admin/settings?project=<project name>
+  EOF
   type        = string
-  default     = "839416416471"
+  default     = "839416416471"  # Default to prod
   validation {
     condition     = length(var.cyngular_project_number) == 12
     error_message = "cyngular_project_number must be 12 digits"
   }
 }
-
-# variable "cyngular_sa_base_email" {
-#   description = "DEPRECATED: Auto-generated. Cyngular service account email for impersonation"
-#   type        = string
-#   default     = ""
-# }
-
-# variable "cyngular_project_id" {
-#   description = "Custom project ID for Cyngular project. Defaults to 'cyngular-{client_name}' if empty"
-#   type        = string
-#   default     = ""
-# }

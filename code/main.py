@@ -11,7 +11,7 @@ from google.cloud import bigquery
 from google.api_core.exceptions import Conflict
 
 # Import project/table configs
-from config import PROJECT_ID, DATASET_ID, LOCATION, TABLE_CONFIGS
+from config import PROJECT_ID, DATASET_ID, TABLE_CONFIGS, LOCATION
 
 
 # ---------------------------

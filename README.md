@@ -1,94 +1,380 @@
+# Cyngular GCP Client Onboarding
 
-## Quick start
+Terraform module for automated client onboarding in Google Cloud Platform. This module provisions a dedicated GCP project with organization-wide audit logging, BigQuery export, and Cloud Functions for security monitoring.
 
-1. Install the prerequisites (Terraform and gcloud CLI).
-2. Authenticate with Google Cloud.
-3. Initialize Terraform, review the plan, and apply.
+## Features
 
-Install links
+- **Automated Project Creation**: Creates a dedicated GCP project for Cyngular with proper billing configuration
+- **Organization Audit Logs**: Configures organization-level audit log collection with optional BigQuery export
+- **Service Accounts**: Provisions service accounts with least-privilege IAM roles for monitoring and data processing
+- **Cloud Function**: Deploys a Python Cloud Function for automated audit log processing
+- **Cross-Project Snapshots**: Enables GKE CSI driver to access disk snapshots across projects
+- **Custom IAM Roles**: Creates organization-level custom roles for snapshot management
 
-- Terraform: https://developer.hashicorp.com/terraform/install
-- gcloud CLI: https://cloud.google.com/sdk/docs/install
+## Architecture
 
-<!-- ## Setup
+```
+Organization
+├── Audit Log Sink → BigQuery Dataset
+├── Custom IAM Role (cyngularOrgRole)
+└── Cyngular Project
+    ├── Service Accounts (cyngular-sa, cyngular-cf-sa, cloud-build-sa)
+    ├── Cloud Function (audit log processor)
+    ├── BigQuery Dataset (optional)
+    └── Storage Bucket (Cloud Function source)
+```
 
-1. Make sure `terraform` and `gcloud` are available in your PATH:
+## Prerequisites
+
+### Required Tools
+
+- **Terraform**: v1.0 or later ([Installation Guide](https://developer.hashicorp.com/terraform/install))
+- **gcloud CLI**: Latest version ([Installation Guide](https://cloud.google.com/sdk/docs/install))
+<!-- - **uv**: Latest version ([Installation Guide](https://astral.sh/uv/install)) -->
+
+Verify installations:
 
 ```bash
 terraform -v
 gcloud version
 ```
 
-2. Ensure you have access to the backend bucket(If using a remote state) and appropriate IAM roles.
-- Project Creator -->
+### Required GCP Permissions
 
-## Authenticate with Google Cloud
-Auth using Application Default Credentials and to the gcloud CLI
+The user or service account running Terraform **must** have these organization-level IAM roles:
+
+| Role | Permission | Purpose |
+|------|------------|---------|
+| **Organization Administrator** | `roles/resourcemanager.organizationAdmin` | Create organization IAM bindings |
+| **Organization Role Administrator** | `roles/iam.organizationRoleAdmin` | Create custom roles at org level |
+| **Project Creator** | `roles/resourcemanager.projectCreator` | Create new projects |
+
+**Grant permissions via gcloud CLI:**
+
+```bash
+ORG_ID="YOUR_ORG_ID"
+USER_EMAIL="user@example.com"
+
+gcloud organizations add-iam-policy-binding ${ORG_ID} \
+  --member="user:${USER_EMAIL}" \
+  --role="roles/resourcemanager.organizationAdmin"
+
+gcloud organizations add-iam-policy-binding ${ORG_ID} \
+  --member="user:${USER_EMAIL}" \
+  --role="roles/iam.organizationRoleAdmin"
+
+gcloud organizations add-iam-policy-binding ${ORG_ID} \
+  --member="user:${USER_EMAIL}" \
+  --role="roles/resourcemanager.projectCreator"
+```
+
+For detailed permission setup instructions, see [SETUP_PERMISSION.md](./docs/docs/SETUP_PERMISSION.md).
+
+### GCP Authentication
+
+Authenticate using Application Default Credentials:
 
 ```bash
 gcloud auth login
+
+# Set auth as local config
 gcloud auth application-default login
-gcloud config set project YOUR_PROJECT_ID
 ```
 
-- gcloud auth login is used to authenticate gcloud CLI command 
-- gcloud auth application-default login is used for Client libraries and tools(Terraform etc)
+## Quick Start
 
+### 1. Configure Variables
 
-## Variables
-
-- `terraform.tfvars` in this directory provides the default input values.
-
-Example:
+Fill in your values in `terraform.tfvars`:
 
 ```hcl
-organization_id = 123456789
-billing_account = "AAAAA-BBBBB-CCCCC"
-
-client_name = "CLIENT_NAME"
+organization_id = "1234567890123"
+billing_account = "XXXXXX-YYYYYY-ZZZZZZ"
+client_name     = "acme"
+client_main_location = "us-central1"
 
 organization_audit_logs = {
-  audit_log_configuration = {
-    enable_admin_read = true/false
-    enable_data_read  = true/false
-    enable_data_write = true/false
-  }
-  enable_bigquery_export = true/false
-  bq_location = "REGION OR MULTIRGION" # By default us-east4
-  existing_bq_dataset = { # Needs to be set if enable_bigquery_export is false
-    dataset_id = DATASET_NAME
-    project_id = DATASET_PROJECT
+  log_configuration = {
+    "ADMIN_READ" = true
+    "DATA_READ"  = false
+    "DATA_WRITE" = true
   }
 }
 
+# Only for overriding the default
+# cyngular_project_number = "839416416471"  # Dev: 103392354536
 ```
 
-description:
+### 2. Initialize and Deploy
 
-Configures audit logs and sink for organization
-- If enable_bigquery_export is false, existing_bq_dataset must be provided.
-- If enable_bigquery_export is true, existing_bq_dataset is ignored.
-- If enable_bigquery_export is true and bq_location is not provided, us-east4 is used for the default.
-
-log_configuration - Configuration for which audit logs to enable
-- enable_admin_read - Enable admin read audit logs
-- enable_data_read  - Enable data read audit logs
-- enable_data_write - Enable data write audit logs
-
-## Terraform workflow
 ```bash
-cd client/
-
-# Initialize providers and backend
+# Initialize Terraform providers
 terraform init
 
-# Inspect what Terraform will change
-terraform plan -var-file=terraform.tfvars
+# Review planned changes
+terraform plan
 
-# Apply changes (review the plan carefully first)
-terraform apply -var-file=terraform.tfvars
+# Apply configuration
+terraform apply
 ```
 
-## Backend (remote state)
+### 3. Verify Deployment
 
-If you'd like to use a remote state, uncommend the backend.tf block and fill in the bucket name and the path to the terraform.tfvars file that will be stored inside
+```bash
+# Check created project
+gcloud projects describe cyngular-<client_name>
+
+# Verify Cloud Function deployed
+gcloud functions list --project=cyngular-<client_name>
+
+# Check BigQuery dataset
+bq ls --project_id=cyngular-<client_name>
+```
+
+## Input Variables
+
+### Required Variables
+
+| Variable | Type | Description |
+|----------|------|-------------|
+| `client_name` | `string` | Client organization name (lowercase letters and numbers only) |
+| `client_main_location` | `string` | Primary GCP region for client resources (e.g., `us-central1`) |
+| `organization_id` | `string` | GCP organization ID where resources will be deployed |
+| `billing_account` | `string` | GCP billing account ID (format: `XXXXXX-YYYYYY-ZZZZZZ`) |
+| `organization_audit_logs` | `object` | Organization audit log configuration |
+
+### Optional Variables
+
+| Variable | Type | Default | Description |
+|----------|------|---------|-------------|
+| `cyngular_project_folder_id` | `string` | `""` | GCP folder ID to create project under. Creates under organization if empty |
+| `cyngular_project_number` | `string` | `"839416416471"` | Cyngular project number for GKE CSI cross-project snapshot access |
+| `existing_bigquery_dataset` | `object` | `null` | **Optional**: Configuration for using an existing BigQuery dataset instead of creating a new one. If null, a new dataset will be created in the Cyngular project. See configuration details below. |
+
+### organization_audit_logs Configuration
+
+```hcl
+organization_audit_logs = {
+  # Which audit log types to enable
+  log_configuration = {
+    "ADMIN_READ" = bool  # Admin activity logs (recommended: true)
+    "DATA_READ"  = bool  # Data access read logs (high volume)
+    "DATA_WRITE" = bool  # Data access write logs (recommended: true)
+  }
+}
+```
+
+### existing_bigquery_dataset Configuration
+
+```hcl
+existing_bigquery_dataset = {
+  dataset_name = string  # Required: Name of the existing BigQuery dataset
+  project_id   = string  # Required: GCP project ID containing the dataset
+  location     = string  # Optional: Dataset location (defaults to client_main_location if omitted)
+}
+```
+
+**Note**: If `existing_bigquery_dataset` is `null` (default), a new BigQuery dataset will be created in the Cyngular project with the name `{client_name}_cyngular_sink`.
+
+## Examples
+
+### Minimal Configuration (New BigQuery Dataset)
+
+```hcl
+organization_id = "1234567890123"
+billing_account = "XXXXXX-YYYYYY-ZZZZZZ"
+client_name     = "acme"
+client_main_location = "us-central1"
+
+organization_audit_logs = {
+  log_configuration = {
+    "ADMIN_READ" = true
+    "DATA_READ"  = false
+    "DATA_WRITE" = true
+  }
+}
+```
+
+### Using Existing BigQuery Dataset
+
+```hcl
+organization_id = "1234567890123"
+billing_account = "XXXXXX-YYYYYY-ZZZZZZ"
+client_name     = "acme"
+client_main_location = "us-east4"
+
+# Use an existing BigQuery dataset
+existing_bigquery_dataset = {
+  dataset_name = "existing_audit_logs"
+  project_id   = "cyngular-acme"
+  location     = "us-east4"  # Optional
+}
+
+organization_audit_logs = {
+  log_configuration = {
+    "ADMIN_READ" = true
+    "DATA_READ"  = false
+    "DATA_WRITE" = true
+  }
+}
+```
+
+### Custom Project Settings
+
+```hcl
+organization_id         = "1234567890123"
+billing_account         = "XXXXXX-YYYYYY-ZZZZZZ"
+client_name             = "acme"
+client_main_location      = "europe-west1"
+cyngular_project_id     = "custom-acme-security"
+cyngular_project_folder_id = "folders/123456789"
+
+organization_audit_logs = {
+  log_configuration = {
+    "ADMIN_READ" = true
+    "DATA_READ"  = true
+    "DATA_WRITE" = true
+  }
+}
+```
+
+### Advanced: Using Existing BigQuery Dataset in a Different Project
+
+```hcl
+organization_id = "1234567890123"
+billing_account = "XXXXXX-YYYYYY-ZZZZZZ"
+client_name     = "acme"
+client_main_location = "us-east4"
+
+# Use an existing dataset in a different project
+existing_bigquery_dataset = {
+  dataset_name = "existing_audit_logs"
+  project_id   = "shared-logging-project"
+  location     = "us-east4"  # Optional: can be omitted to use client_main_location
+}
+
+organization_audit_logs = {
+  log_configuration = {
+    "ADMIN_READ" = true
+    "DATA_READ"  = false
+    "DATA_WRITE" = true
+  }
+}
+```
+
+## Outputs
+
+This module creates the following resources (outputs can be added to `outputs.tf`):
+
+- **GCP Project**: `cyngular-{client_name}`
+- **Service Accounts**:
+  - `cyngular-sa@cyngular-{client_name}.iam.gserviceaccount.com`
+  - `cyngular-cf-sa@cyngular-{client_name}.iam.gserviceaccount.com`
+  - `cyngular-cloud-build-sa@cyngular-{client_name}.iam.gserviceaccount.com`
+- **Cloud Function**: `cyngular-function`
+- **BigQuery Dataset**: `{client_name}_cyngular_sink` (if enabled)
+- **Custom IAM Role**: `organizations/{org_id}/roles/cyngularOrgRole`
+
+## Remote State Backend
+
+For team collaboration, configure a remote backend. Create a `backend.tf` file:
+
+```hcl
+terraform {
+  backend "gcs" {
+    bucket = "your-terraform-state-bucket"
+    prefix = "some/path/cyngular-onboarding"
+  }
+}
+```
+
+Then initialize:
+
+```bash
+# Initialize providers and backend
+terraform init -upgrade
+
+# Inspect what Terraform will change
+terraform plan
+
+terraform apply --auto-approve
+```
+
+## Troubleshooting
+
+See [TROUBLESHOOTING.md](./docs/TROUBLESHOOTING.md) for common issues and solutions.
+
+## Important Notes
+
+- **Client Naming**: The `client_name` must contain only lowercase letters and numbers (no hyphens or special characters)
+- **Environment Detection**: Environment (dev/prod) is auto-detected based on `cyngular_project_number`
+- **API Enablement**: The module automatically enables required GCP APIs (BigQuery, Cloud Functions, Compute, etc.)
+- **Audit Log Types**: Enable only necessary audit log types to control costs (Data Read logs can be expensive)
+- **Snapshot Permissions**: The module grants Cyngular's GKE CSI driver read-only access to client disk snapshots
+- **Deployment Time**: Initial deployment takes 3-5 minutes. Cloud Function may take an additional 60 seconds to become fully available
+
+## Security Considerations
+
+- All service accounts follow the principle of least privilege
+- Custom IAM roles are scoped to specific resource types (snapshots)
+- Conditional IAM bindings restrict snapshot operations to Cyngular-prefixed resources only
+- No permanent credentials are stored in the module
+- Service account impersonation is used for cross-project access
+
+## Module Structure
+
+```
+.
+├── README.md                    # This file
+├── MANUAL_PERMISSION_SETUP.md   # Detailed permission setup guide
+├── variables.tf                 # Input variable definitions
+├── locals.tf                    # Local values and configuration
+├── main.tf                      # Project creation
+├── apis.tf                      # API enablement
+├── iam.tf                       # Custom IAM roles
+├── sa.tf                        # Service account creation
+├── audit-logs.tf                # Audit log sink configuration
+├── cloud-function.tf            # Cloud Function deployment
+├── terraform.tfvars.example     # Example variable values
+├── Providers.tf                 # Provider configuration
+├── code/                        # Cloud Function source code
+│   ├── main.py
+│   └── requirements.txt
+└── modules/
+    └── audit_logs/              # Audit logs submodule
+        ├── main.tf
+        ├── variables.tf
+        ├── bq.tf
+        └── iam.tf
+```
+
+## Support
+
+For issues or questions:
+
+1. Check [MANUAL_PERMISSION_SETUP.md](./docs/MANUAL_PERMISSION_SETUP.md) for permission-related problems
+2. Review the [Troubleshooting](./docs/TROUBLESHOOTING.md) guide
+3. Verify all prerequisites are met
+4. Contact the Cyngular infrastructure team
+
+## Version Requirements
+
+- **Terraform**: >= 1.0
+- **Google Provider**: 5.45.2
+- **Google Beta Provider**: 5.45.2
+- **Archive Provider**: 2.7.1
+
+## License
+
+Internal use only - Cyngular Security
+
+graph TD
+    A[Start] --> B[GCP Organization Access]
+    B --> C[Terraform Install + gcloud Setup]
+    C --> D[Configure Module Inputs]
+    D --> E[Run terraform init]
+    E --> F[Run terraform plan]
+    F --> G[Run terraform apply]
+    G --> H[Verify in GCP + Cyngular]
+    H --> I[Optional Labeling and Tagging]
+    I --> J[End]
