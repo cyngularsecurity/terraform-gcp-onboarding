@@ -305,7 +305,7 @@ See [TROUBLESHOOTING.md](./docs/TROUBLESHOOTING.md) for common issues and soluti
 
 For issues or questions:
 
-1. Check [MANUAL_PERMISSION_SETUP.md](./docs/MANUAL_PERMISSION_SETUP.md) for permission-related problems
+1. Check [SETUP_PERMISSION.md](./docs/SETUP_PERMISSION.md) for permission-related problems
 2. Review the [Troubleshooting](./docs/TROUBLESHOOTING.md) guide
 3. Verify all prerequisites are met
 4. Contact the Cyngular infrastructure team
