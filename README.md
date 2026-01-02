@@ -28,8 +28,8 @@ Organization
 
 ### Required Tools
 
-- **Terraform**: v1.0 or later ([Installation Guide](https://developer.hashicorp.com/terraform/install))
-- **gcloud CLI**: Latest version ([Installation Guide](https://cloud.google.com/sdk/docs/install))
+- **Terraform** - ([Installation Guide](https://developer.hashicorp.com/terraform/install))
+- **gcloud CLI** - ([Installation Guide](https://cloud.google.com/sdk/docs/install))
 <!-- - **uv**: Latest version ([Installation Guide](https://astral.sh/uv/install)) -->
 
 Verify installations:
@@ -43,7 +43,7 @@ gcloud version
 
 The user or service account running Terraform **must** have these organization-level IAM roles:
 
-| Role | Permission | Purpose |
+| Role | Permission | Info |
 |------|------------|---------|
 | **Organization Administrator** | `roles/resourcemanager.organizationAdmin` | Create organization IAM bindings |
 | **Organization Role Administrator** | `roles/iam.organizationRoleAdmin` | Create custom roles at org level |
@@ -100,35 +100,32 @@ organization_audit_logs = {
     "DATA_WRITE" = true
   }
 }
-
-# Only for overriding the default
-# cyngular_project_number = "839416416471"  # Dev: 103392354536
 ```
 
 ### 2. Initialize and Deploy
 
 ```bash
-# Initialize Terraform providers
+# Initialize Terraform modules
 terraform init
 
-# Review planned changes
 terraform plan
+# Review planned changes
 
 # Apply configuration
-terraform apply
+terraform apply --auto-approve
 ```
 
 ### 3. Verify Deployment
 
 ```bash
-# Check created project
+# Cyngular project
 gcloud projects describe cyngular-<client_name>
 
-# Verify Cloud Function deployed
+# Cloud Function
 gcloud functions list --project=cyngular-<client_name>
 
-# Check BigQuery dataset
-bq ls --project_id=cyngular-<client_name>
+# BigQuery dataset
+bq ls --project_id=cyngular-<client_name> / existing
 ```
 
 ## Input Variables
@@ -137,8 +134,8 @@ bq ls --project_id=cyngular-<client_name>
 
 | Variable | Type | Description |
 |----------|------|-------------|
-| `client_name` | `string` | Client organization name (lowercase letters and numbers only) |
-| `client_main_location` | `string` | Primary GCP region for client resources (e.g., `us-central1`) |
+| `client_name` | `string` | Client Company name (lowercase letters and numbers only, see other constraints) |
+| `client_main_location` | `string` | Primary GCP region code for client resources (e.g., `us-central1`) |
 | `organization_id` | `string` | GCP organization ID where resources will be deployed |
 | `billing_account` | `string` | GCP billing account ID (format: `XXXXXX-YYYYYY-ZZZZZZ`) |
 | `organization_audit_logs` | `object` | Organization audit log configuration |
@@ -148,7 +145,6 @@ bq ls --project_id=cyngular-<client_name>
 | Variable | Type | Default | Description |
 |----------|------|---------|-------------|
 | `cyngular_project_folder_id` | `string` | `""` | GCP folder ID to create project under. Creates under organization if empty |
-| `cyngular_project_number` | `string` | `"839416416471"` | Cyngular project number for GKE CSI cross-project snapshot access |
 | `existing_bigquery_dataset` | `object` | `null` | **Optional**: Configuration for using an existing BigQuery dataset instead of creating a new one. If null, a new dataset will be created in the Cyngular project. See configuration details below. |
 
 ### organization_audit_logs Configuration
@@ -157,9 +153,9 @@ bq ls --project_id=cyngular-<client_name>
 organization_audit_logs = {
   # Which audit log types to enable
   log_configuration = {
-    "ADMIN_READ" = bool  # Admin activity logs (recommended: true)
-    "DATA_READ"  = bool  # Data access read logs (high volume)
-    "DATA_WRITE" = bool  # Data access write logs (recommended: true)
+    "ADMIN_READ" = bool  # Admin activity logs
+    "DATA_READ"  = bool  # Data access read logs
+    "DATA_WRITE" = bool  # Data access write logs
   }
 }
 ```
@@ -178,13 +174,14 @@ existing_bigquery_dataset = {
 
 ## Examples
 
-### Minimal Configuration (New BigQuery Dataset)
+### Standard
 
 ```hcl
-organization_id = "1234567890123"
-billing_account = "XXXXXX-YYYYYY-ZZZZZZ"
 client_name     = "acme"
 client_main_location = "us-central1"
+
+organization_id = "1234567890123"
+billing_account = "XXXXXX-YYYYYY-ZZZZZZ"
 
 organization_audit_logs = {
   log_configuration = {
@@ -198,67 +195,18 @@ organization_audit_logs = {
 ### Using Existing BigQuery Dataset
 
 ```hcl
-organization_id = "1234567890123"
-billing_account = "XXXXXX-YYYYYY-ZZZZZZ"
 client_name     = "acme"
 client_main_location = "us-east4"
+
+organization_id = "1234567890123"
+billing_account = "XXXXXX-YYYYYY-ZZZZZZ"
+
 
 # Use an existing BigQuery dataset
 existing_bigquery_dataset = {
   dataset_name = "existing_audit_logs"
   project_id   = "cyngular-acme"
   location     = "us-east4"  # Optional
-}
-
-organization_audit_logs = {
-  log_configuration = {
-    "ADMIN_READ" = true
-    "DATA_READ"  = false
-    "DATA_WRITE" = true
-  }
-}
-```
-
-### Custom Project Settings
-
-```hcl
-organization_id         = "1234567890123"
-billing_account         = "XXXXXX-YYYYYY-ZZZZZZ"
-client_name             = "acme"
-client_main_location      = "europe-west1"
-cyngular_project_id     = "custom-acme-security"
-cyngular_project_folder_id = "folders/123456789"
-
-organization_audit_logs = {
-  log_configuration = {
-    "ADMIN_READ" = true
-    "DATA_READ"  = true
-    "DATA_WRITE" = true
-  }
-}
-```
-
-### Advanced: Using Existing BigQuery Dataset in a Different Project
-
-```hcl
-organization_id = "1234567890123"
-billing_account = "XXXXXX-YYYYYY-ZZZZZZ"
-client_name     = "acme"
-client_main_location = "us-east4"
-
-# Use an existing dataset in a different project
-existing_bigquery_dataset = {
-  dataset_name = "existing_audit_logs"
-  project_id   = "shared-logging-project"
-  location     = "us-east4"  # Optional: can be omitted to use client_main_location
-}
-
-organization_audit_logs = {
-  log_configuration = {
-    "ADMIN_READ" = true
-    "DATA_READ"  = false
-    "DATA_WRITE" = true
-  }
 }
 ```
 

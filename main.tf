@@ -40,13 +40,12 @@ module "organization_audit_logs" {
   cyngular_sa_email = module.cyngular_sa.email
   function_sa_email = module.cyngular_func.function_sa_email
 
-  audit_log_configuration   = var.organization_audit_logs.log_configuration
+  # Computed based on whether existing_bigquery_dataset is provided
+  enable_cyngular_bigquery_export = local.enable_cyngular_bigquery_export
 
   # sending audit logs from new / existing to cyngular project
   destination_audit_project = local.cyngular_project_id
-
-  # Computed based on whether existing_bigquery_dataset is provided
-  enable_cyngular_bigquery_export = local.enable_cyngular_bigquery_export
+  audit_log_configuration   = var.organization_audit_logs.log_configuration
 
   bq_dataset_name           = local.bq_dataset_name
   bq_dataset_location       = local.bq_dataset_location
