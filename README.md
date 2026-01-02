@@ -90,7 +90,6 @@ create a main.tf file:
 ```hcl
 module "onboarding" {
   source  = "cyngularsecurity/onboarding/gcp"
-  <!-- version = "1.0.5" -->
 
   client_name     = "acme"
   client_main_location = "us-central1"
@@ -106,7 +105,6 @@ module "onboarding" {
     }
   }
 }
-
 ```
 
 ### 2. Initialize and Deploy
