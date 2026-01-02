@@ -83,21 +83,27 @@ gcloud auth application-default login
 
 ## Quick Start
 
-### 1. Configure Variables
+### 1. Use module
 
-Fill in your values in `terraform.tfvars`:
+create a main.tf file:
 
 ```hcl
-organization_id = "1234567890123"
-billing_account = "XXXXXX-YYYYYY-ZZZZZZ"
-client_name     = "acme"
-client_main_location = "us-central1"
+module "onboarding" {
+  source  = "cyngularsecurity/onboarding/gcp"
+  <!-- version = "1.0.5" -->
 
-organization_audit_logs = {
-  log_configuration = {
-    "ADMIN_READ" = true
-    "DATA_READ"  = false
-    "DATA_WRITE" = true
+  client_name     = "acme"
+  client_main_location = "us-central1"
+
+  organization_id = "1234567890123"
+  billing_account = "XXXXXX-YYYYYY-ZZZZZZ"
+
+  organization_audit_logs = {
+    log_configuration = {
+      "ADMIN_READ" = true
+      "DATA_READ"  = false
+      "DATA_WRITE" = true
+    }
   }
 }
 ```
