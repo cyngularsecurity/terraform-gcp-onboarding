@@ -90,6 +90,8 @@ output "deployment_summary" {
     client_name            = var.client_name
     region                 = var.client_main_location
 
+    client_cyngular_sa_email = module.cyngular_sa.email
+
     project_id             = google_project.cyngular_project.project_id
     organization_id        = var.organization_id
 

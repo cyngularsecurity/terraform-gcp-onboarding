@@ -15,8 +15,15 @@
 gcloud projects undelete cyngular-<client_name>
 
 # terraform import
+# if using module call
+terraform import --var-file tfvars/<client_name>.tfvars \
+    module.cyngular_gcp_onboarding.google_project.cyngular_project cyngular-<client_name>
+
+# if using local plain tf
 terraform import --var-file tfvars/<client_name>.tfvars \
     google_project.cyngular_project cyngular-<client_name>
+
+
 ```
 
 ## Off Boarding

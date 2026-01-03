@@ -88,7 +88,7 @@ gcloud auth application-default login
 create a main.tf file:
 
 ```hcl
-module "onboarding" {
+module "cyngular_gcp_onboarding" {
   source  = "cyngularsecurity/onboarding/gcp"
 
   client_name     = "acme"
@@ -104,6 +104,10 @@ module "onboarding" {
       "DATA_WRITE" = true
     }
   }
+}
+
+output "deployment_summary" {
+  value = module.cyngular_gcp_onboarding.deployment_summary
 }
 ```
 

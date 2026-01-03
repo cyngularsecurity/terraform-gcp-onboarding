@@ -67,7 +67,7 @@ locals {
   gke_csi_snapshot = {
     enabled = true
     custom_role = {
-      role_id     = "gkeCsiSnapshotReader"
+      role_id     = "gke_csi_snapshot_reader"
       title       = "GKE CSI Snapshot Reader"
       description = "GKE CSI driver read snapshots for cross-project VolumeSnapshotContent"
       permissions = [

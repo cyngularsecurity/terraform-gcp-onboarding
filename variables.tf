@@ -59,12 +59,9 @@ variable "existing_bigquery_dataset" {
   default = null
 
   validation {
-    condition = (
-      var.existing_bigquery_dataset == null ||
-      (
-        var.existing_bigquery_dataset.dataset_name != "" &&
-        var.existing_bigquery_dataset.project_id != ""
-      )
+    condition = var.existing_bigquery_dataset == null ? true : (
+      var.existing_bigquery_dataset.dataset_name != "" &&
+      var.existing_bigquery_dataset.project_id != ""
     )
     error_message = "When existing_bigquery_dataset is provided, both dataset_name and project_id must be non-empty strings."
   }

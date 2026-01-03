@@ -181,7 +181,11 @@ def generate_terraform_vars(sink: dict[str, Any]) -> str:
             f'  dataset_name = "{bq_dataset_id}"',
             f'  project_id   = "{bq_project_id}"',
             f'  location     = "{location}"'
-            + ("  # Optional: Verify this location or omit to use client_main_location" if not has_dataset_info else "  # Optional: Can be omitted to use client_main_location"),
+            + (
+                "  # Optional: Verify this location or omit to use client_main_location"
+                if not has_dataset_info
+                else "  # Optional: Can be omitted to use client_main_location"
+            ),
             "}",
             "",
             "# Optional: Configure organization audit log types",
@@ -264,9 +268,7 @@ def interactive_mode() -> None:
     # Step 4: Generate Terraform configuration
     console.print("\n[bold]Step 4: Generate Terraform Configuration[/bold]")
     if len(sinks) == 1:
-        console.print(
-            f"Using only available log sink: [cyan]{sinks[0]['name']}[/cyan]"
-        )
+        console.print(f"Using only available log sink: [cyan]{sinks[0]['name']}[/cyan]")
         selected_sink = sinks[0]
     else:
         sink_names = [s["name"] for s in sinks]
@@ -280,7 +282,8 @@ def interactive_mode() -> None:
 
     client_tfvars_filename = "client_tfvars_suggestion.tfvars"
     if Confirm.ask(
-        f"\nSave configuration to file [cyan]{client_tfvars_filename}[/cyan]?", default=True
+        f"\nSave configuration to file [cyan]{client_tfvars_filename}[/cyan]?",
+        default=True,
     ):
         with open(client_tfvars_filename, "w") as f:
             f.write(terraform_config)
