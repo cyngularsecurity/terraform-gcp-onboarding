@@ -4,7 +4,7 @@ resource "google_bigquery_dataset_iam_member" "cyngular_sa" {
   role = each.value
 
   ## determind in root - if using existing - must be also provided - if not - using cyngular's
-  project    = var.bq_dataset_project_id
+  project = var.bq_dataset_project_id
 
   # dataset_id = local.enable_cyngular_bigquery_export ? module.destination_dataset[0].resource_name : "projects/${var.bq_dataset_project_id}/datasets/${var.bq_dataset_name}"
   dataset_id = local.dest_dataset_id

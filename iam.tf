@@ -6,7 +6,7 @@ resource "google_organization_iam_custom_role" "cyngular_custom" {
   org_id      = var.organization_id
   permissions = local.cyngular_org_role.permissions
 
-  depends_on  = [google_project_service.project]
+  depends_on = [google_project_service.project]
 }
 
 resource "google_project_iam_custom_role" "gke_csi_snapshot_reader" {

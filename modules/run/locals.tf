@@ -1,6 +1,6 @@
 locals {
   cloud_function = {
-    name              = "cyngular-function"
+    name = "cyngular-function"
 
     env_vars = {
       "LOCATION"   = var.bq_dataset_location
@@ -19,6 +19,6 @@ locals {
 
   function_sa_project_permissions = [
     for role in local.cloud_function.project_permissions :
-      "${var.cyngular_project_id}=>${role}"
+    "${var.cyngular_project_id}=>${role}"
   ]
 }

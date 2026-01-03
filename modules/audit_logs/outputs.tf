@@ -8,7 +8,7 @@ output "bq_details" {
     dataset_id   = module.destination_dataset[0].resource_id
     project_id   = module.destination_dataset[0].project
     dataset_name = module.destination_dataset[0].resource_name
-  } : {
+    } : {
     dataset_id   = local.dest_dataset_id
     project_id   = var.bq_dataset_project_id
     dataset_name = var.bq_dataset_name

@@ -12,8 +12,8 @@ module "log_export_bq" {
 
   count = local.enable_cyngular_bigquery_export ? 1 : 0
 
-  destination_uri        = module.destination_dataset[0].destination_uri
-  filter                 = "logName: \"/logs/cloudaudit.googleapis.com%2Factivity\" OR logName: \"/logs/cloudaudit.googleapis.com%2Fsystem_event\" OR logName: \"logs/cloudaudit.googleapis.com%2Fdata_access\" OR logName: \"logs/cloudaudit.googleapis.com%2Fpolicy\""
+  destination_uri = module.destination_dataset[0].destination_uri
+  filter          = "logName: \"/logs/cloudaudit.googleapis.com%2Factivity\" OR logName: \"/logs/cloudaudit.googleapis.com%2Fsystem_event\" OR logName: \"logs/cloudaudit.googleapis.com%2Fdata_access\" OR logName: \"logs/cloudaudit.googleapis.com%2Fpolicy\""
   # log_sink_name          = "cyngular-audit-logs-bq"
   log_sink_name          = "cyngular-audit-logs-bq-${var.client_name}"
   parent_resource_id     = var.org_id

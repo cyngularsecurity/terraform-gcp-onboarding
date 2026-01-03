@@ -2,8 +2,8 @@ module "cloud_function_sa" {
   source  = "terraform-google-modules/service-accounts/google"
   version = "~> 4.0"
 
-  names         = ["cyngular-cf-sa"]
-  project_id    = var.cyngular_project_id
+  names      = ["cyngular-cf-sa"]
+  project_id = var.cyngular_project_id
 
   project_roles = local.function_sa_project_permissions
 }

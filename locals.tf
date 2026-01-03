@@ -1,10 +1,10 @@
 locals {
   # Deterministic
-  env                    = var.cyngular_project_number == "839416416471" ? "prod" : "dev"
-  cyngular_project_id    = "cyngular-${var.client_name}"
+  env                 = var.cyngular_project_number == "839416416471" ? "prod" : "dev"
+  cyngular_project_id = "cyngular-${var.client_name}"
 
   # service account names must be no less than 6 characters long
-  client_sa_name = length(var.client_name) < 6 ? "${var.client_name}-sa" : var.client_name
+  client_sa_name         = length(var.client_name) < 6 ? "${var.client_name}-sa" : var.client_name
   cyngular_sa_base_email = "${local.client_sa_name}@cyngular-${local.env}.iam.gserviceaccount.com"
 
   enabled_apis = [
@@ -26,12 +26,14 @@ locals {
   # BigQuery dataset configuration
   # For new datasets: use default naming and Cyngular project
   # For existing datasets: use provided configuration
+  existing_bq_ds_location = try(var.existing_bigquery_dataset.location, "")
+
   bq_dataset_name       = var.existing_bigquery_dataset != null ? var.existing_bigquery_dataset.dataset_name : "${var.client_name}_cyngular_sink"
-  bq_dataset_location   = var.existing_bigquery_dataset != null && var.existing_bigquery_dataset.location != "" ? var.existing_bigquery_dataset.location : var.client_main_location
+  bq_dataset_location   = local.existing_bq_ds_location != "" ? local.existing_bq_ds_location : var.client_main_location
   bq_dataset_project_id = var.existing_bigquery_dataset != null ? var.existing_bigquery_dataset.project_id : local.cyngular_project_id
 
   cloud_function = {
-    name              = "cyngular-function"
+    name = "cyngular-function"
 
     bucket_location   = var.client_main_location
     function_location = var.client_main_location

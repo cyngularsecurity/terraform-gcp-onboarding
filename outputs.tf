@@ -36,9 +36,9 @@ output "cyngular_sa_base_email" {
 ################################################################################
 output "audit_logs_enabled" {
   value = {
-    admin_read  = try(var.organization_audit_logs.log_configuration["ADMIN_READ"], false)
-    data_read   = try(var.organization_audit_logs.log_configuration["DATA_READ"], false)
-    data_write  = try(var.organization_audit_logs.log_configuration["DATA_WRITE"], false)
+    admin_read = try(var.organization_audit_logs.log_configuration["ADMIN_READ"], false)
+    data_read  = try(var.organization_audit_logs.log_configuration["DATA_READ"], false)
+    data_write = try(var.organization_audit_logs.log_configuration["DATA_WRITE"], false)
   }
   description = "Organization audit log types enabled for collection"
 }
@@ -87,15 +87,15 @@ output "cloud_function_console_url" {
 ################################################################################
 output "deployment_summary" {
   value = {
-    client_name            = var.client_name
-    region                 = var.client_main_location
+    client_name = var.client_name
+    region      = var.client_main_location
 
     client_cyngular_sa_email = module.cyngular_sa.email
 
-    project_id             = google_project.cyngular_project.project_id
-    organization_id        = var.organization_id
+    project_id      = google_project.cyngular_project.project_id
+    organization_id = var.organization_id
 
-    enable_bigquery_export        = module.organization_audit_logs.enable_bigquery_export
+    enable_bigquery_export = module.organization_audit_logs.enable_bigquery_export
     audit_logs_enabled     = var.organization_audit_logs.log_configuration != null && module.organization_audit_logs.enable_bigquery_export
   }
   description = "High-level summary of deployed Cyngular infrastructure"
@@ -109,18 +109,18 @@ output "deployment_summary" {
 #   value = <<-EOT
 #     # Verify project creation
 #     gcloud projects describe ${google_project.cyngular_project.project_id}
-    
+
 #     # View Cloud Function
 #     gcloud functions describe ${local.cloud_function.name} \
 #       --project=${local.cyngular_project_id} \
 #       --region=${local.cloud_function.function_location}
-    
+
 #     # Check BigQuery dataset (if enabled)
 #     bq ls --project_id=${local.cyngular_project_id}
-    
+
 #     # List service accounts
 #     gcloud iam service-accounts list --project=${local.cyngular_project_id}
-    
+
 #     # Test Cloud Function
 #     curl -H "Authorization: Bearer $(gcloud auth print-identity-token)" ${module.cloud_function.function_uri}
 #   EOT

@@ -18,11 +18,11 @@ module "cyngular_func" {
   bucket_location   = local.cloud_function.bucket_location
   function_location = local.cloud_function.function_location
 
-  bq_dataset_name           = local.bq_dataset_name
-  bq_dataset_location       = local.bq_dataset_location
-  bq_dataset_project_id     = local.bq_dataset_project_id
+  bq_dataset_name       = local.bq_dataset_name
+  bq_dataset_location   = local.bq_dataset_location
+  bq_dataset_project_id = local.bq_dataset_project_id
 
-  organization_id      = var.organization_id
+  organization_id = var.organization_id
 
   cyngular_project_id = local.cyngular_project_id
 
@@ -34,8 +34,8 @@ module "cyngular_func" {
 module "organization_audit_logs" {
   source = "./modules/audit_logs"
 
-  client_name               = var.client_name
-  org_id                    = var.organization_id
+  client_name = var.client_name
+  org_id      = var.organization_id
 
   cyngular_sa_email = module.cyngular_sa.email
   function_sa_email = module.cyngular_func.function_sa_email
@@ -47,9 +47,9 @@ module "organization_audit_logs" {
   destination_audit_project = local.cyngular_project_id
   audit_log_configuration   = var.organization_audit_logs.log_configuration
 
-  bq_dataset_name           = local.bq_dataset_name
-  bq_dataset_location       = local.bq_dataset_location
-  bq_dataset_project_id     = local.bq_dataset_project_id
+  bq_dataset_name       = local.bq_dataset_name
+  bq_dataset_location   = local.bq_dataset_location
+  bq_dataset_project_id = local.bq_dataset_project_id
 
   depends_on = [google_project_service.project]
 }

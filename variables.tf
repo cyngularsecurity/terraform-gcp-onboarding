@@ -2,7 +2,7 @@ variable "client_name" {
   description = "Client organization name (lowercase letters and numbers only, must start and end with a letter)"
   type        = string
   validation {
-    condition     = can(regex("^[a-z](?:[a-z0-9]{0,11}[a-z])?$", var.client_name))
+    condition = can(regex("^[a-z](?:[a-z0-9]{0,11}[a-z])?$", var.client_name))
 
     error_message = "client_name must contain only lowercase letters and numbers, and must start and end with a letter"
   }
@@ -102,7 +102,7 @@ variable "cyngular_project_number" {
     Find project number: https://console.cloud.google.com/iam-admin/settings?project=<project name>
   EOF
   type        = string
-  default     = "839416416471"  # Default to prod
+  default     = "839416416471" # Default to prod
   validation {
     condition     = length(var.cyngular_project_number) == 12
     error_message = "cyngular_project_number must be 12 digits"

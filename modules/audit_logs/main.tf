@@ -6,7 +6,7 @@
 #   - DATA_READ: Data access operations (HIGH volume, can be expensive - enable only if needed)
 #   - DATA_WRITE: Data modification operations (medium volume, recommended for security monitoring)
 resource "google_organization_iam_audit_config" "organization" {
-  count   = length([for k, v in var.audit_log_configuration : k if v]) > 0 ? 1 : 0
+  count = length([for k, v in var.audit_log_configuration : k if v]) > 0 ? 1 : 0
 
   org_id  = var.org_id
   service = "allServices"
