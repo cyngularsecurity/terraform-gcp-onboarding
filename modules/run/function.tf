@@ -1,3 +1,9 @@
+resource "time_sleep" "wait_for_sa" {
+  create_duration = "60s"
+
+  depends_on = [module.cloud_function_sa]
+}
+
 module "cloud_function" {
   source  = "GoogleCloudPlatform/cloud-functions/google"
   version = "~> 0.6"
@@ -23,7 +29,8 @@ module "cloud_function" {
   depends_on = [
     module.cloud_build_sa,
     module.cloud_function_sa,
-    terraform_data.wait_for_build_sa_permissions
+    terraform_data.wait_for_build_sa_permissions,
+    time_sleep.wait_for_sa
   ]
 }
 

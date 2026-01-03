@@ -5,6 +5,7 @@ terraform {
     google = {
       source  = "hashicorp/google"
       version = "5.45.2"
+      # version = "7.14.1"
     }
     google-beta = {
       source  = "hashicorp/google-beta"
@@ -14,13 +15,9 @@ terraform {
       source  = "hashicorp/archive"
       version = "2.7.1"
     }
-    # null = {
-    #   source  = "hashicorp/null"
-    #   version = "3.2.4"
-    # }
-    # time = {
-    #   source  = "hashicorp/time"
-    #   version = "0.13.1"
-    # }
+    time = {
+      source  = "hashicorp/time"
+      version = "0.13.1"
+    }
   }
 }
