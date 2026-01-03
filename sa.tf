@@ -1,6 +1,8 @@
 module "cyngular_sa" {
   source        = "terraform-google-modules/service-accounts/google"
   version       = "~> 4.0"
+  # version = "4.6.0" // with latest google tf provider version
+
   project_id    = local.cyngular_project_id
   names         = ["cyngular-sa"]
   project_roles = local.cyngular_sa_permissions

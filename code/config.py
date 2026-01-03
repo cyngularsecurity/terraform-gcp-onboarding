@@ -44,6 +44,7 @@ TABLE_CONFIGS = [
         "expiration_ms": 7 * 24 * 60 * 60 * 1000,
         "schema": [
             bigquery.SchemaField("client_instance_id", "STRING"),
+            bigquery.SchemaField("client_account_id", "STRING"),
             bigquery.SchemaField("client_volume_id", "STRING"),
             bigquery.SchemaField("type", "STRING"),
             bigquery.SchemaField("serial_number", "STRING", description="Extracted serial number from msg field"),
@@ -75,6 +76,7 @@ TABLE_CONFIGS = [
         "expiration_ms": 7 * 24 * 60 * 60 * 1000,
         "schema": [
             bigquery.SchemaField("client_instance_id", "STRING"),
+            bigquery.SchemaField("client_account_id", "STRING"),
             bigquery.SchemaField("client_volume_id", "STRING"),
             bigquery.SchemaField("message", "STRING"),
             bigquery.SchemaField("process", "STRING"),
@@ -92,6 +94,7 @@ TABLE_CONFIGS = [
         "expiration_ms": 7 * 24 * 60 * 60 * 1000,
         "schema": [
             bigquery.SchemaField("client_instance_id", "STRING"),
+            bigquery.SchemaField("client_account_id", "STRING"),
             bigquery.SchemaField("client_volume_id", "STRING"),
             bigquery.SchemaField("schedule", "STRING"),
             bigquery.SchemaField("command", "STRING"),
@@ -110,6 +113,7 @@ TABLE_CONFIGS = [
         "expiration_ms": 7 * 24 * 60 * 60 * 1000,
         "schema": [
             bigquery.SchemaField("client_instance_id", "STRING"),
+            bigquery.SchemaField("client_account_id", "STRING"),
             bigquery.SchemaField("client_volume_id", "STRING"),
             bigquery.SchemaField("file_name", "STRING"),
             bigquery.SchemaField("file_path", "STRING"),
@@ -136,6 +140,7 @@ TABLE_CONFIGS = [
         "expiration_ms": 7 * 24 * 60 * 60 * 1000,
         "schema": [
             bigquery.SchemaField("client_instance_id", "STRING"),
+            bigquery.SchemaField("client_account_id", "STRING"),
             bigquery.SchemaField("client_volume_id", "STRING"),
             bigquery.SchemaField("command", "STRING"),
             bigquery.SchemaField("file_path", "STRING"),
@@ -153,6 +158,7 @@ TABLE_CONFIGS = [
         "expiration_ms": 7 * 24 * 60 * 60 * 1000,
         "schema": [
             bigquery.SchemaField("client_instance_id", "STRING"),
+            bigquery.SchemaField("client_account_id", "STRING"),
             bigquery.SchemaField("client_volume_id", "STRING"),
             bigquery.SchemaField("ip_address", "STRING"),
             bigquery.SchemaField("hostnames", "STRING", mode="REPEATED"),
@@ -170,6 +176,7 @@ TABLE_CONFIGS = [
         "expiration_ms": 7 * 24 * 60 * 60 * 1000,
         "schema": [
             bigquery.SchemaField("client_instance_id", "STRING"),
+            bigquery.SchemaField("client_account_id", "STRING"),
             bigquery.SchemaField("client_volume_id", "STRING"),
             bigquery.SchemaField("creation_time", "TIMESTAMP"),
             bigquery.SchemaField("unit", "STRING"),
@@ -190,6 +197,7 @@ TABLE_CONFIGS = [
         "expiration_ms": 7 * 24 * 60 * 60 * 1000,
         "schema": [
             bigquery.SchemaField("client_instance_id", "STRING"),
+            bigquery.SchemaField("client_account_id", "STRING"),
             bigquery.SchemaField("group_name", "STRING"),
             bigquery.SchemaField("gid", "STRING"),
             bigquery.SchemaField("members", "STRING", mode="REPEATED"),
@@ -214,6 +222,7 @@ TABLE_CONFIGS = [
         "expiration_ms": 7 * 24 * 60 * 60 * 1000,
         "schema": [
             bigquery.SchemaField("client_instance_id", "STRING"),
+            bigquery.SchemaField("client_account_id", "STRING"),
             bigquery.SchemaField("file_name", "STRING"),
             bigquery.SchemaField("file_path", "STRING"),
             bigquery.SchemaField("md5_sum", "STRING"),
@@ -237,6 +246,7 @@ TABLE_CONFIGS = [
         "expiration_ms": 7 * 24 * 60 * 60 * 1000,
         "schema": [
             bigquery.SchemaField("client_instance_id", "STRING"),
+            bigquery.SchemaField("client_account_id", "STRING"),
             bigquery.SchemaField("file_name", "STRING"),
             bigquery.SchemaField("event_id", "STRING"),
             bigquery.SchemaField("windows_event_id", "STRING"),
@@ -289,6 +299,7 @@ TABLE_CONFIGS = [
         "expiration_ms": 7 * 24 * 60 * 60 * 1000,
         "schema": [
             bigquery.SchemaField("client_instance_id", "STRING"),
+            bigquery.SchemaField("client_account_id", "STRING"),
             bigquery.SchemaField("file_name", "STRING"),
             bigquery.SchemaField("file_path", "STRING"),
             bigquery.SchemaField("md5_sum", "STRING"),
@@ -310,6 +321,7 @@ TABLE_CONFIGS = [
         "expiration_ms": 7 * 24 * 60 * 60 * 1000,
         "schema": [
             bigquery.SchemaField("client_instance_id", "STRING"),
+            bigquery.SchemaField("client_account_id", "STRING"),
             bigquery.SchemaField("ip_address", "STRING"),
             bigquery.SchemaField("hostnames", "STRING", mode="REPEATED"),
             bigquery.SchemaField("file_path", "STRING"),
@@ -327,6 +339,7 @@ TABLE_CONFIGS = [
         "expiration_ms": 7 * 24 * 60 * 60 * 1000,
         "schema": [
             bigquery.SchemaField("client_instance_id", "STRING"),
+            bigquery.SchemaField("client_account_id", "STRING"),
             bigquery.SchemaField("key_name", "STRING"),
             bigquery.SchemaField("key_fullpath", "STRING"),
             bigquery.SchemaField(
@@ -354,6 +367,7 @@ TABLE_CONFIGS = [
         "expiration_ms": 7 * 24 * 60 * 60 * 1000,
         "schema": [
             bigquery.SchemaField("client_instance_id", "STRING"),
+            bigquery.SchemaField("client_account_id", "STRING"),
             bigquery.SchemaField("service_name", "STRING"),
             bigquery.SchemaField("display_name", "STRING"),
             bigquery.SchemaField("image_path", "STRING"),
@@ -375,6 +389,7 @@ TABLE_CONFIGS = [
         "expiration_ms": 7 * 24 * 60 * 60 * 1000,
         "schema": [
             bigquery.SchemaField("client_instance_id", "STRING"),
+            bigquery.SchemaField("client_account_id", "STRING"),
             bigquery.SchemaField("task_name", "STRING"),
             bigquery.SchemaField(
                 "data",
@@ -423,6 +438,7 @@ TABLE_CONFIGS = [
         "expiration_ms": 7 * 24 * 60 * 60 * 1000,
         "schema": [
             bigquery.SchemaField("client_instance_id", "STRING"),
+            bigquery.SchemaField("client_account_id", "STRING"),
             bigquery.SchemaField("identity_type", "STRING"),
             bigquery.SchemaField("name", "STRING"),
             bigquery.SchemaField("scan_time_timestamp", "TIMESTAMP"),
@@ -439,6 +455,7 @@ TABLE_CONFIGS = [
         "expiration_ms": 7 * 24 * 60 * 60 * 1000,
         "schema": [
             bigquery.SchemaField("client_instance_id", "STRING"),
+            bigquery.SchemaField("client_account_id", "STRING"),
             bigquery.SchemaField("web_browser", "STRING"),
             bigquery.SchemaField("history_type", "STRING"),
             bigquery.SchemaField("id", "INT64"),
