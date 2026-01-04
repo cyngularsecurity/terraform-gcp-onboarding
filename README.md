@@ -68,7 +68,7 @@ gcloud organizations add-iam-policy-binding ${ORG_ID} \
   --role="roles/resourcemanager.projectCreator"
 ```
 
-For detailed permission setup instructions, see [SETUP_PERMISSION.md](./docs/docs/SETUP_PERMISSION.md).
+For detailed permission setup instructions, see [SETUP_PERMISSION.md](./docs/SETUP_PERMISSION.md).
 
 ### GCP Authentication
 

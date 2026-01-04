@@ -1,15 +1,15 @@
 resource "google_project" "cyngular_project" {
-  project_id          = local.cyngular_project_id
-  org_id              = var.organization_id
+  count               = var.existing_project_id == null ? 1 : 0
+
   name                = "cyngular ${var.client_name}"
+  project_id          = local.generated_project_id
+
+  folder_id           = var.cyngular_project_folder_id != "" ? var.cyngular_project_folder_id : null
+  org_id              = var.organization_id
   billing_account     = var.billing_account
+
   auto_create_network = false
   deletion_policy     = "DELETE"
-  folder_id           = var.cyngular_project_folder_id != "" ? var.cyngular_project_folder_id : null
-
-  # lifecycle {
-  #   prevent_destroy = true
-  # }
 }
 
 module "cyngular_func" {

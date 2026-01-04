@@ -1,7 +1,10 @@
 locals {
   # Deterministic
   env                 = var.cyngular_project_number == "839416416471" ? "prod" : "dev"
-  cyngular_project_id = "cyngular-${var.client_name}"
+  
+  generated_project_id = "cyngular-${var.client_name}"
+
+  cyngular_project_id = var.existing_project_id != null ? var.existing_project_id : google_project.cyngular_project[0].id
 
   # service account names must be no less than 6 characters long
   client_sa_name         = length(var.client_name) < 6 ? "${var.client_name}-sa" : var.client_name

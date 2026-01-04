@@ -38,8 +38,8 @@ Have an organization admin run these commands:
 
 ```bash
 # Set variables
-ORG_ID="795614755097"
-USER_EMAIL="dvirg@cyngularsecurity.com"
+ORG_ID="<YOUR_ORG_ID>"
+USER_EMAIL="devops@thiscompany.com"
 
 # Grant Organization Administrator role
 gcloud organizations add-iam-policy-binding ${ORG_ID} \
@@ -62,9 +62,9 @@ gcloud organizations add-iam-policy-binding ${ORG_ID} \
 
 ## Option 2: Using GCP Console
 
-1. Navigate to: <https://console.cloud.google.com/iam-admin/iam?organizationId=795614755097>
-2. Find user: `dvirg@cyngularsecurity.com`
-3. Click **Edit principal** (pencil icon)
+1. Navigate to: <<https://console.cloud.google.com/iam-admin/iam?organizationId=><YOUR_ORG_ID>>
+2. Find user: `devops@thiscompany.com`
+3. Click **Edit principal**
 4. Click **Add another role** (3 times)
 5. Add these roles:
    - **Organization Administrator**

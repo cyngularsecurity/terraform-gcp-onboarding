@@ -108,3 +108,9 @@ variable "cyngular_project_number" {
     error_message = "cyngular_project_number must be 12 digits"
   }
 }
+
+variable "existing_project_id" {
+  description = "Optional ID of an existing GCP project to use. If provided, a new project will NOT be created."
+  type        = string
+  default     = null
+}

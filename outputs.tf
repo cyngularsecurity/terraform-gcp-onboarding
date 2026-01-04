@@ -2,16 +2,16 @@
 # PROJECT OUTPUTS
 ################################################################################
 output "project_id" {
-  value       = google_project.cyngular_project.project_id
-  description = "The Cyngular project ID (e.g., cyngular-acme)"
+  value       = local.cyngular_project_id
+  description = "The Main project ID (e.g., cyngular-acme)"
 }
 output "project_name" {
-  value       = google_project.cyngular_project.name
-  description = "The Cyngular project display name"
+  value       = var.existing_project_id != null ? data.google_project.existing_project[0].name : google_project.cyngular_project[0].name
+  description = "The Main project display name"
 }
 output "project_number" {
-  value       = google_project.cyngular_project.number
-  description = "The Cyngular project number (12-digit unique identifier)"
+  value       = var.existing_project_id != null ? data.google_project.existing_project[0].number : google_project.cyngular_project[0].number
+  description = "The Main project number (12-digit unique identifier)"
 }
 
 ################################################################################
@@ -21,6 +21,7 @@ output "project_number" {
 #   value       = module.cyngular_sa.service_account.name
 #   description = "Primary Cyngular service account resource name (fully qualified)"
 # }
+
 output "cyngular_sa_email" { // Target / Client's
   value       = module.cyngular_sa.email
   description = "Primary Cyngular service account email for monitoring and snapshot operations"
@@ -92,7 +93,7 @@ output "deployment_summary" {
 
     client_cyngular_sa_email = module.cyngular_sa.email
 
-    project_id      = google_project.cyngular_project.project_id
+    project_id      = local.cyngular_project_id
     organization_id = var.organization_id
 
     enable_bigquery_export = module.organization_audit_logs.enable_bigquery_export

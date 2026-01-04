@@ -11,6 +11,7 @@ resource "google_organization_iam_custom_role" "cyngular_custom" {
 
 resource "google_project_iam_custom_role" "gke_csi_snapshot_reader" {
   project     = local.cyngular_project_id
+
   role_id     = local.gke_csi_snapshot.custom_role.role_id
   title       = local.gke_csi_snapshot.custom_role.title
   description = local.gke_csi_snapshot.custom_role.description
@@ -23,7 +24,8 @@ resource "google_project_iam_custom_role" "gke_csi_snapshot_reader" {
 # Service account format: service-{PROJECT_NUMBER}@container-engine-robot.iam.gserviceaccount.com
 # using Google's managed service account for GKE CSI drivers
 resource "google_project_iam_member" "gke_csi_snapshot_service_account" {
-  project = local.cyngular_project_id
+  project     = local.cyngular_project_id
+
   role    = google_project_iam_custom_role.gke_csi_snapshot_reader.id
   member  = "serviceAccount:service-${var.cyngular_project_number}@container-engine-robot.iam.gserviceaccount.com"
 }

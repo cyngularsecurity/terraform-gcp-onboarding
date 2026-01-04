@@ -5,7 +5,7 @@
 ### ERROR -
 
 ```bash
-│ Error: error creating project cyngular-se7enup (cyngular se7enup): googleapi: Error 409: Requested entity already exists, alreadyExists. If you received a 403 error, make sure you have the `roles/resourcemanager.projectCreator` permission
+│ Error: error creating project cyngular-<client_name> (cyngular <client_name>): googleapi: Error 409: Requested entity already exists, alreadyExists. If you received a 403 error, make sure you have the `roles/resourcemanager.projectCreator` permission
 ```
 
 ### SOLUTION -
@@ -54,16 +54,31 @@ bq rm -r -f -d '<project name>:<dataset name>'
 ### SOLUTION -
 
 ```bash
-# rerun (permissions must have sunk in after 30 seconds)
+# re-run (permissions must have sunk in after 30 seconds)
 terraform apply
 ```
 
-## Retrigger cloud run function
+## re-trigger cloud run function
 
 ```bash
 # taint
 terraform taint module.cyngular_func.terraform_data.call_cloud_function
 
-# reapply
+# re-apply
 terraform apply
+```
+
+## re-apply issues
+
+### re-creating iam bindings of service account
+
+### ERROR -
+
+│ Error: Error applying IAM policy for Bigquery Dataset <project name>:<dataset name>: Error creating DatasetAccess: googleapi: Error 400: IAM setPolicy failed for Dataset <project name>:<dataset name>: The member deleted:serviceaccount:cyngular-cf-sa@<project name>.iam.gserviceaccount.com?uid=xxxxxxxxxxxxxxxxxxx is of an unknown type. Please set a valid type prefix for the member., invalid
+
+### SOLUTION -
+
+```bash
+# clean up IAM policy list on the bq dataset
+bash ./scripts/clean_bq_iam.sh <project name> <dataset name>
 ```
