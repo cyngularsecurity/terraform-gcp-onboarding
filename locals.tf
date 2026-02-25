@@ -1,6 +1,5 @@
 locals {
-  # Deterministic
-  env                 = var.cyngular_project_number == "839416416471" ? "prod" : "dev"
+  env                 = var.cyngular_project_number == "839416416471" ? "prod" : var.cyngular_project_number == "1006301876718" ? "stg" : "dev"
   
   generated_project_id = "cyngular-${var.client_name}"
 
