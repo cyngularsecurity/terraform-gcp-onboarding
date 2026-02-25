@@ -6,11 +6,11 @@ resource "time_sleep" "wait_for_sa" {
 
 module "cloud_function" {
   source  = "GoogleCloudPlatform/cloud-functions/google"
-  version = "~> 0.6"
+  version = "0.8.0"
 
   project_id            = var.cyngular_project_id
   function_name         = local.cloud_function.name
-  function_location     = var.function_location
+  location              = var.function_location
   runtime               = "python311"
   entrypoint            = "http_trigger"
   build_service_account = module.cloud_build_sa.service_account.name
