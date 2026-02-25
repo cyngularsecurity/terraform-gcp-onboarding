@@ -7,6 +7,7 @@ module "cyngular_gcp_onboarding" {
 
     organization_id = "795614755097" 
     billing_account = "010722-BB2F2E-435F3D"
+    cyngular_project_number = "1006301876718"
 }
 
 output "deployment_summary" {

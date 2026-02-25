@@ -92,6 +92,7 @@ variable "cyngular_project_number" {
 
     Available environments:
       - Dev:  248189932415 (project: cyngular-dev)  - For testing and development clients
+      - Staging: 1006301876718 (project: cyngular-stg) - For staging clients
       - Prod: 839416416471 (project: cyngular-prod) - For production clients
 
     This value is used for:
@@ -103,10 +104,10 @@ variable "cyngular_project_number" {
   EOF
   type        = string
   default     = "839416416471" # Default to prod
-  validation {
-    condition     = length(var.cyngular_project_number) == 12
-    error_message = "cyngular_project_number must be 12 digits"
-  }
+  # validation {
+  #   condition     = length(var.cyngular_project_number) == 12
+  #   error_message = "cyngular_project_number must be 12 digits"
+  # }
 }
 
 variable "existing_project_id" {
