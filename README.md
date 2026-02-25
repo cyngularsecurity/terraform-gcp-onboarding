@@ -278,6 +278,8 @@ See [TROUBLESHOOTING.md](./docs/TROUBLESHOOTING.md) for common issues and soluti
 - No permanent credentials are stored in the module
 - Service account impersonation is used for cross-project access
 
+For a detailed breakdown of all permissions granted to the client service account, see [Client Service Account Permissions](./docs/CLIENT_SERVICE_ACCOUNT_PERMISSIONS.md).
+
 ## Module Structure
 
 ```
@@ -311,8 +313,9 @@ For issues or questions:
 
 1. Check [SETUP_PERMISSION.md](./docs/SETUP_PERMISSION.md) for permission-related problems
 2. Review the [Troubleshooting](./docs/TROUBLESHOOTING.md) guide
-3. Verify all prerequisites are met
-4. Contact the Cyngular infrastructure team
+3. See [Client Service Account Permissions](./docs/CLIENT_SERVICE_ACCOUNT_PERMISSIONS.md) for detailed IAM documentation
+4. Verify all prerequisites are met
+5. Contact the Cyngular infrastructure team
 
 ## Version Requirements
 

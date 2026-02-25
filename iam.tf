@@ -17,6 +17,8 @@ resource "google_project_iam_custom_role" "gke_csi_snapshot_reader" {
   description = local.gke_csi_snapshot.custom_role.description
 
   permissions = local.gke_csi_snapshot.custom_role.permissions
+
+  depends_on = [google_project_service.project]
 }
 
 # Grants Cyngular's GKE Container Engine service account read-only access to client disk snapshots

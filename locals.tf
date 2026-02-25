@@ -4,7 +4,10 @@ locals {
   
   generated_project_id = "cyngular-${var.client_name}"
 
-  cyngular_project_id = var.existing_project_id != null ? var.existing_project_id : google_project.cyngular_project[0].id
+  # Use generated_project_id (a statically-known value) instead of google_project.cyngular_project[0].id
+  # (an apply-time value). Both are identical, but using the static form prevents "for_each keys
+  # derived from unknown values" errors in downstream resources like module.cyngular_sa.
+  cyngular_project_id = var.existing_project_id != null ? var.existing_project_id : local.generated_project_id
 
   # service account names must be no less than 6 characters long
   client_sa_name         = length(var.client_name) < 6 ? "${var.client_name}-sa" : var.client_name
