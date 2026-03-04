@@ -1,6 +1,6 @@
 locals {
-  env                 = var.cyngular_project_number == "839416416471" ? "prod" : var.cyngular_project_number == "1006301876718" ? "stg" : "dev"
-  
+  env = var.cyngular_project_number == "839416416471" ? "prod" : var.cyngular_project_number == "1006301876718" ? "stg" : "dev"
+
   generated_project_id = "cyngular-${var.client_name}"
 
   # Use generated_project_id (a statically-known value) instead of google_project.cyngular_project[0].id
@@ -18,7 +18,8 @@ locals {
     "cloudfunctions.googleapis.com",
     "cloudbuild.googleapis.com",
     "run.googleapis.com",
-    "cloudresourcemanager.googleapis.com"
+    "cloudresourcemanager.googleapis.com",
+    "cloudasset.googleapis.com",
   ]
 
   enable_random_bucket_suffix = true
