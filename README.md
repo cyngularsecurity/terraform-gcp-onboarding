@@ -109,6 +109,18 @@ module "cyngular_gcp_onboarding" {
 output "deployment_summary" {
   value = module.cyngular_gcp_onboarding.deployment_summary
 }
+
+output "bigquery_dataset_name" {
+  value = module.cyngular_gcp_onboarding.bigquery_dataset_name
+}
+
+output "bigquery_dataset_project" {
+  value = module.cyngular_gcp_onboarding.bigquery_dataset_project
+}
+
+output "bigquery_dataset_console_url" {
+  value = module.cyngular_gcp_onboarding.bigquery_dataset_console_url
+}
 ```
 
 ### 2. Initialize and Deploy
@@ -323,10 +335,6 @@ For issues or questions:
 - **Google Provider**: 5.45.2
 - **Google Beta Provider**: 5.45.2
 - **Archive Provider**: 2.7.1
-
-## License
-
-Internal use only - Cyngular Security
 
 graph TD
     A[Start] --> B[GCP Organization Access]
