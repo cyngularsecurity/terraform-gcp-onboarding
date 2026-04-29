@@ -81,6 +81,14 @@ gcloud auth login
 gcloud auth application-default login
 ```
 
+### Required GCP APIs
+
+Required APIs must be enabled on every project under the target organization. Use the helper script:
+
+```bash
+./scripts/enable_apis.sh <ORG_ID> [--dry-run]
+```
+
 ## Quick Start
 
 ### 1. Use module
