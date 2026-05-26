@@ -14,12 +14,18 @@ locals {
 
   enabled_apis = [
     "bigquery.googleapis.com",
-    "compute.googleapis.com",
-    "cloudfunctions.googleapis.com",
     "cloudbuild.googleapis.com",
-    "run.googleapis.com",
-    "cloudresourcemanager.googleapis.com",
     "cloudasset.googleapis.com",
+    "admin.googleapis.com",
+    "apikeys.googleapis.com",
+    "sqladmin.googleapis.com",
+    "iam.googleapis.com",
+    "cloudresourcemanager.googleapis.com",
+    "storage.googleapis.com",
+    "compute.googleapis.com",
+    "container.googleapis.com",
+    "cloudfunctions.googleapis.com",
+    "run.googleapis.com",
   ]
 
   enable_random_bucket_suffix = true
