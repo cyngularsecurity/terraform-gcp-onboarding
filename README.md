@@ -89,6 +89,25 @@ Required APIs must be enabled on every project under the target organization. Us
 ./scripts/enable_apis.sh <ORG_ID> [--dry-run]
 ```
 
+### Org Policy: Domain Restricted Sharing
+
+If the target org enforces `constraints/iam.allowedPolicyMemberDomains`, IAM bindings to Cyngular's cross-org SA and Google-managed service agents (GKE robot, etc.) will fail with `does not belong to a permitted customer`.
+
+Add an override at the org or the `cyngular-{client_name}` project allowing:
+
+- `C00m6ynb6` — Cyngular's Cloud Identity customer ID
+- `C00000000` — required for Google-owned service agents
+
+Console: **IAM & Admin → Organization Policies → Domain restricted sharing → Manage policy → Custom → Allow**. Requires `roles/orgpolicy.policyAdmin`.
+
+### Billing
+
+The `billing_account` input must reference an **active** billing account linked to the project. Verify:
+
+```bash
+gcloud beta billing accounts describe XXXXXX-YYYYYY-ZZZZZZ --format="value(open)"  # must return: True
+```
+
 ## Quick Start
 
 ### 1. Use module
