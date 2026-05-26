@@ -1,23 +1,20 @@
 #!/bin/bash
 #
-# enable_apis.sh - Enable required GCP APIs on all projects under an organization
+# Enable the GCP APIs required for Cyngular onboarding on every active project
+# under the given organization, including projects nested in folders. The script
+# is idempotent: already-enabled APIs are reported and skipped.
 #
-# DESCRIPTION:
-#   Iterates over every project accessible to the currently logged-in gcloud
-#   account within the given organization and enables the APIs required for
-#   Cyngular onboarding. APIs already enabled are skipped (gcloud is idempotent,
-#   but we check first to avoid unnecessary calls and produce clearer output).
+# Usage:   ./enable_apis.sh <organization_id> [--dry-run]
+# Output:  one line per project: "<project_id>  [<hierarchy>]  <outcome>"
 #
-# PREREQUISITES:
-#   - gcloud CLI authenticated (`gcloud auth login`)
-#   - serviceusage.services.enable permission on the target projects
+# Required permissions:
+#   Organization: resourcemanager.projects.list, resourcemanager.folders.list
+#   Per project:  serviceusage.services.list, serviceusage.services.enable
 #
-# USAGE:
-#   ./enable_apis.sh <organization_id> [--dry-run]
-#
-# EXAMPLES:
-#   ./enable_apis.sh 123456789012
-#   ./enable_apis.sh 123456789012 --dry-run
+# Per-project preconditions:
+#   - Service Usage API enabled (default on new projects)
+#   - Linked billing account (required for compute, container, run,
+#     cloudfunctions, and sqladmin)
 
 set -euo pipefail
 
@@ -56,74 +53,106 @@ echo "Organization   : $ORG_ID"
 echo "Dry run        : $DRY_RUN"
 echo
 
-echo "Listing projects under organization $ORG_ID..."
 PROJECTS=()
-while IFS= read -r line; do
-  [[ -n "$line" ]] && PROJECTS+=("$line")
-done < <(
-  gcloud projects list \
-    --filter="parent.id=$ORG_ID AND lifecycleState=ACTIVE" \
-    --format="value(projectId)"
-)
+PATHS=()
 
-if [[ ${#PROJECTS[@]} -eq 0 ]]; then
-  echo "No accessible active projects found under organization $ORG_ID." >&2
+# collect <parent_type> <parent_id> <display_path>
+#   parent_type: "organization" or "folder"
+collect() {
+  local parent_type="$1" parent_id="$2" path="$3"
+
+  while IFS= read -r proj; do
+    [[ -n "$proj" ]] || continue
+    PROJECTS+=("$proj")
+    PATHS+=("$path")
+  done < <(
+    gcloud projects list \
+      --filter="parent.id=$parent_id AND parent.type=$parent_type" \
+      --format="value(projectId)" 2>/dev/null
+  )
+
+  local folder_flag
+  if [[ "$parent_type" == "organization" ]]; then
+    folder_flag="--organization=$parent_id"
+  else
+    folder_flag="--folder=$parent_id"
+  fi
+
+  while IFS=$'\t' read -r fname fdisplay; do
+    [[ -n "$fname" ]] || continue
+    local fid="${fname#folders/}"
+    collect "folder" "$fid" "$path/$fdisplay"
+  done < <(
+    gcloud resource-manager folders list $folder_flag \
+      --format="value(name,displayName)" 2>/dev/null
+  )
+}
+
+echo "Walking hierarchy under organization $ORG_ID..."
+collect "organization" "$ORG_ID" "org"
+
+TOTAL=${#PROJECTS[@]}
+if [[ $TOTAL -eq 0 ]]; then
+  echo "No accessible projects found under organization $ORG_ID." >&2
   exit 0
 fi
 
-echo "Found ${#PROJECTS[@]} project(s)."
+echo "Found $TOTAL project(s)."
 echo
 
 FAILED_PROJECTS=()
 
-for PROJECT in "${PROJECTS[@]}"; do
-  echo "==> $PROJECT"
+MAX_PROJ=0
+MAX_PATH=0
+for i in "${!PROJECTS[@]}"; do
+  (( ${#PROJECTS[$i]} > MAX_PROJ )) && MAX_PROJ=${#PROJECTS[$i]}
+  (( ${#PATHS[$i]}    > MAX_PATH )) && MAX_PATH=${#PATHS[$i]}
+done
+
+for i in "${!PROJECTS[@]}"; do
+  PROJECT="${PROJECTS[$i]}"
+  HPATH="${PATHS[$i]}"
+  LINE_PREFIX=$(printf "%-${MAX_PROJ}s  [%-${MAX_PATH}s]" "$PROJECT" "$HPATH")
 
   ENABLED="$(gcloud services list --enabled \
     --project="$PROJECT" \
     --format="value(config.name)" 2>/dev/null || echo "__ERR__")"
 
   if [[ "$ENABLED" == "__ERR__" ]]; then
-    echo "    SKIP: cannot list services (insufficient permissions or API disabled)"
+    echo "$LINE_PREFIX  SKIP: cannot list services"
     FAILED_PROJECTS+=("$PROJECT")
-    echo
     continue
   fi
 
   TO_ENABLE=()
   for API in "${APIS[@]}"; do
-    if grep -qx "$API" <<<"$ENABLED"; then
-      echo "    ok:     $API"
-    else
-      TO_ENABLE+=("$API")
-    fi
+    grep -qx "$API" <<<"$ENABLED" || TO_ENABLE+=("$API")
   done
 
   if [[ ${#TO_ENABLE[@]} -eq 0 ]]; then
-    echo "    all required APIs already enabled."
-    echo
+    echo "$LINE_PREFIX  ok"
     continue
   fi
 
+  TO_ENABLE_CSV="$(IFS=,; echo "${TO_ENABLE[*]}")"
+
   if [[ "$DRY_RUN" == "true" ]]; then
-    for API in "${TO_ENABLE[@]}"; do
-      echo "    would enable: $API"
-    done
-  else
-    echo "    enabling ${#TO_ENABLE[@]} API(s)..."
-    if gcloud services enable "${TO_ENABLE[@]}" --project="$PROJECT" >/dev/null 2>&1; then
-      for API in "${TO_ENABLE[@]}"; do
-        echo "    enabled: $API"
-      done
-    else
-      echo "    FAILED to enable APIs on $PROJECT"
-      FAILED_PROJECTS+=("$PROJECT")
-    fi
+    echo "$LINE_PREFIX  would enable: $TO_ENABLE_CSV"
+    continue
   fi
-  echo
+
+  ERR_OUT="$(gcloud services enable "${TO_ENABLE[@]}" --project="$PROJECT" 2>&1 >/dev/null)" || {
+    REASON=$(echo "$ERR_OUT" | grep -E '^ERROR|FAILED_PRECONDITION|PERMISSION_DENIED' | head -1)
+    [[ -z "$REASON" ]] && REASON="$(echo "$ERR_OUT" | head -1)"
+    echo "$LINE_PREFIX  FAILED: $REASON"
+    FAILED_PROJECTS+=("$PROJECT")
+    continue
+  }
+  echo "$LINE_PREFIX  enabled: $TO_ENABLE_CSV"
 done
 
-echo "Done."
+echo
+echo "Done. Processed $TOTAL project(s)."
 if [[ ${#FAILED_PROJECTS[@]} -gt 0 ]]; then
   echo "Projects with failures: ${FAILED_PROJECTS[*]}" >&2
   exit 1
