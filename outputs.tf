@@ -29,7 +29,7 @@ output "cyngular_sa_email" { // Target / Client's
 
 output "cyngular_sa_base_email" {
   value       = local.cyngular_sa_base_email
-  description = "Base (Source) Cyngular service account email for impersonation (in cyngular-dev/prod project)"
+  description = "Base (Source) Cyngular service account email for impersonation (in the cyngular-v4-dev/stg/prod project)"
 }
 
 ################################################################################

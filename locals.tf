@@ -1,6 +1,14 @@
 locals {
   env = var.cyngular_project_number == "839416416471" ? "prod" : var.cyngular_project_number == "1006301876718" ? "stg" : "dev"
 
+  # Cyngular environment project number -> project ID (dev v4 differs from "cyngular-${env}").
+  cyngular_env_project_ids = {
+    "839416416471"  = "cyngular-prod"   # prod
+    "1006301876718" = "cyngular-stg"    # stg
+    "771292580448"  = "cyngular-v4-dev" # dev (v4)
+  }
+  cyngular_env_project = lookup(local.cyngular_env_project_ids, var.cyngular_project_number, "cyngular-${local.env}")
+
   generated_project_id = "cyngular-${var.client_name}"
 
   # Use generated_project_id (a statically-known value) instead of google_project.cyngular_project[0].id
@@ -10,7 +18,7 @@ locals {
 
   # service account names must be no less than 6 characters long
   client_sa_name         = length(var.client_name) < 6 ? "${var.client_name}-sa" : var.client_name
-  cyngular_sa_base_email = "${local.client_sa_name}@cyngular-${local.env}.iam.gserviceaccount.com"
+  cyngular_sa_base_email = var.cyngular_delegation_sa_email != "" ? var.cyngular_delegation_sa_email : "${local.client_sa_name}@${local.cyngular_env_project}.iam.gserviceaccount.com"
 
   enabled_apis = [
     "bigquery.googleapis.com",

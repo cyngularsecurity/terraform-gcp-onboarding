@@ -23,8 +23,9 @@
 # # Primary GCP region for client resources (e.g., us-central1, us-east4, europe-west1)
 # client_main_location = "us-central1"
 
-# # Cyngular environment project number - determines dev or prod deployment
-# # Dev:  248189932415 (cyngular-dev)  - For testing/development clients
+# # Cyngular environment project number - determines which Cyngular env this client connects to
+# # Dev:  771292580448 (cyngular-v4-dev) - v4, for testing/development clients
+# # Staging: 1006301876718 (cyngular-stg)
 # # Prod: 839416416471 (cyngular-prod) - For production clients (default)
 # # cyngular_project_number = "839416416471"  # Uncomment to override default
 

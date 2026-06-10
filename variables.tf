@@ -91,9 +91,9 @@ variable "cyngular_project_number" {
     Cyngular's GCP project number - determines which Cyngular environment this client connects to
 
     Available environments:
-      - Dev:  248189932415 (project: cyngular-dev)  - For testing and development clients
-      - Staging: 1006301876718 (project: cyngular-stg) - For staging clients
-      - Prod: 839416416471 (project: cyngular-prod) - For production clients
+      - Dev:  771292580448 (project: cyngular-v4-dev) # v4
+      - Staging: 1006301876718 (project: cyngular-stg)
+      - Prod: 839416416471 (project: cyngular-prod)
 
     This value is used for:
       1. Environment detection (locals.tf) - determines if this is dev/prod deployment
@@ -114,4 +114,15 @@ variable "existing_project_id" {
   description = "Optional ID of an existing GCP project to use. If provided, a new project will NOT be created."
   type        = string
   default     = null
+}
+
+variable "cyngular_delegation_sa_email" {
+  description = <<EOF
+    Cyngular-side delegation SA granted serviceAccountTokenCreator on the client SA.
+    For v4, set to the Crossplane-published status.gsaEmail
+    (e.g. "dev-<client>-wi@cyngular-v4-dev.iam.gserviceaccount.com").
+    If empty, falls back to the legacy computed name "<client_sa_name>@<cyngular_env_project>".
+  EOF
+  type        = string
+  default     = ""
 }
