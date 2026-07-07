@@ -3,7 +3,7 @@
 # Otherwise presumed to use the client's existing BigQuery dataset
 #
 # The log sink:
-#   - Captures all CloudAudit logs (activity, system_event, data_access, policy) from the entire organization
+#   - Captures CloudAudit logs (activity, system_event, policy) from the entire organization
 #   - Has include_children=true: monitors ALL projects under the organization automatically
 #   - Sends logs to a BigQuery dataset for analysis and security monitoring by Cyngular
 module "log_export_bq" {
@@ -13,7 +13,7 @@ module "log_export_bq" {
   count = local.enable_cyngular_bigquery_export ? 1 : 0
 
   destination_uri = module.destination_dataset[0].destination_uri
-  filter          = "logName: \"/logs/cloudaudit.googleapis.com%2Factivity\" OR logName: \"/logs/cloudaudit.googleapis.com%2Fsystem_event\" OR logName: \"logs/cloudaudit.googleapis.com%2Fdata_access\" OR logName: \"logs/cloudaudit.googleapis.com%2Fpolicy\""
+  filter          = "logName: \"/logs/cloudaudit.googleapis.com%2Factivity\" OR logName: \"/logs/cloudaudit.googleapis.com%2Fsystem_event\" OR logName: \"logs/cloudaudit.googleapis.com%2Fpolicy\""
   # log_sink_name          = "cyngular-audit-logs-bq"
   log_sink_name          = "cyngular-audit-logs-bq-${var.client_name}"
   parent_resource_id     = var.org_id
