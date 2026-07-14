@@ -25,7 +25,6 @@ locals {
     "cloudbuild.googleapis.com",
     "cloudasset.googleapis.com",
     "admin.googleapis.com",
-    "apikeys.googleapis.com",
     "sqladmin.googleapis.com",
     "iam.googleapis.com",
     "cloudresourcemanager.googleapis.com",
