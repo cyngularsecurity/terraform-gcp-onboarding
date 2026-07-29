@@ -80,6 +80,9 @@ locals {
     org_permissions = [
       "roles/viewer",
       "roles/browser",
+      "roles/cloudasset.viewer",
+      "roles/resourcemanager.organizationViewer",
+      "roles/iam.securityReviewer",
     ]
   }
 
