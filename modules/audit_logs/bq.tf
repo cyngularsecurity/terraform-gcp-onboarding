@@ -20,6 +20,16 @@ module "log_export_bq" {
   parent_resource_type   = "organization"
   unique_writer_identity = true
   include_children       = true
+
+  # Drop high-volume, low-value K8s/operator lease & status-update events
+  exclusions = [
+    {
+      name        = "exclude-noisy-operator-status-updates"
+      description = "Filter out high-volume, low-value K8s/operator lease and status-update audit events"
+      disabled    = false
+      filter      = local.noisy_methods_exclusion_filter
+    }
+  ]
 }
 
 # Creates BigQuery dataset in the Cyngular project to store exported audit logs
